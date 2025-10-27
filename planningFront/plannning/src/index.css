@@ -1,0 +1,32 @@
+/* --- Paleta de Colores ---
+Azul Oscuro/Negro: #2C3E50
+Amarillo Mostaza: #F39C12
+Azul Medio: #3498DB
+Fondo Suave: #F8F9FA
+--------------------------- */
+
+/* 1. Fondo Global y Fuente */
+body {
+    /* Fondo Blanco Roto */
+    background-color: #F8F9FA; 
+    font-family: 'Inter', sans-serif; 
+    margin: 0;
+    padding: 0;
+    min-height: 100vh; /* Asegura que el cuerpo ocupe al menos toda la altura de la vista */
+}
+
+/* 2. Centrar el Contenedor Principal */
+.container {
+    /* Anchura máxima para tabletas y escritorios */
+    max-width: 1440px; 
+    /* 🎯 CENTRADO CRUCIAL */
+    margin-left: auto;
+    margin-right: auto;
+    /* Un padding superior e inferior, pero no a los lados ya que usamos max-width */
+    padding: 0 20px; 
+}
+
+/* 3. Estilo para los Títulos */
+h1, h2, h3 {
+    color: #2C3E50; /* Color Azul Oscuro/Negro */
+}
