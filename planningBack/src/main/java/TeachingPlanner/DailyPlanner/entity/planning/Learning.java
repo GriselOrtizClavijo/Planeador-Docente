@@ -1,25 +1,26 @@
 package TeachingPlanner.DailyPlanner.entity.planning;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "Competencies")
-public class Competencies {
+@Table(name = "Learning")
+public class Learning {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idCompetencies", nullable = false)
-    private int idCompetencies;
+    @Column(name = "idLearning", nullable = false)
+    private int idLearning;
 
 
     @Column(nullable = false, unique = true)
     private String name;
-
-
-
 }

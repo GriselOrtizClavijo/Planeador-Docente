@@ -12,15 +12,12 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+
                 registry.addMapping("/api/**")
-                        // Opción 1: Permitir ambos puertos (más seguro)
-                        .allowedOrigins("http://localhost:5173", "http://localhost:5174")
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
+                        .allowCredentials(true);
 
-                        // Opción 2: Para desarrollo, permite cualquier puerto local (menos estricto)
-                        // .allowedOrigins("http://localhost:*")
-
-                        .allowedMethods("*") // Permitir todos los métodos
-                        .allowedHeaders("*");
             }
         };
     }

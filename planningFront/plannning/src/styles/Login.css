@@ -1,4 +1,8 @@
 /* Estilos para el contenedor principal del formulario */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .login-container {
     padding: 20px;
     max-width: 400px;

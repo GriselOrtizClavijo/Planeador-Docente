@@ -7,11 +7,10 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Setter
-@Getter
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "Area")
 public class Area {
 
@@ -25,5 +24,39 @@ public class Area {
     @ManyToMany(mappedBy = "areas", fetch = FetchType.EAGER)
     private List<Dba> dbas;
 
+    @Column(nullable = false, unique = true)
+    private String name;
 
+  /* public Area() {
+    }
+
+    public Area(int idArea, List<Dba> dbas, String name) {
+        this.idArea = idArea;
+        this.dbas = dbas;
+        this.name = name;
+    }
+
+    public int getIdArea() {
+        return idArea;
+    }
+
+    public void setIdArea(int idArea) {
+        this.idArea = idArea;
+    }
+
+    public List<Dba> getDbas() {
+        return dbas;
+    }
+
+    public void setDbas(List<Dba> dbas) {
+        this.dbas = dbas;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }*/
 }

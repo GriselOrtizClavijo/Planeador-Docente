@@ -5,14 +5,22 @@ Azul Medio: #3498DB
 Fondo Suave: #F8F9FA
 --------------------------- */
 
-/* 1. Fondo Global y Fuente */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+:root {
+  --color-bg: #f5f6f8;
+  --color-card: #ffffff;
+  --color-primary: #3366ff;
+  --color-text: #333333;
+  --font-family: 'Poppins', sans-serif;
+}
+
 body {
-    /* Fondo Blanco Roto */
-    background-color: #F8F9FA; 
-    font-family: 'Inter', sans-serif; 
-    margin: 0;
-    padding: 0;
-    min-height: 100vh; /* Asegura que el cuerpo ocupe al menos toda la altura de la vista */
+  font-family: var(--font-family);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  padding: 0;
 }
 
 /* 2. Centrar el Contenedor Principal */
@@ -29,4 +37,69 @@ body {
 /* 3. Estilo para los Títulos */
 h1, h2, h3 {
     color: #2C3E50; /* Color Azul Oscuro/Negro */
+}
+
+
+:root{
+--color-bg: #F8F9FA; /* Fondo Suave */
+--color-card: #ffffff;
+--color-text: #2C3E50; /* Azul Oscuro/Negro */
+--color-primary: #3498DB; /* Azul Medio */
+--color-accent: #F39C12; /* Amarillo Mostaza */
+--color-danger: #E74C3C; /* Rojo */
+--shadow: 0 10px 20px rgba(44,62,80,.08);
+--radius: 16px;
+}
+
+
+body{ background: var(--color-bg); color: var(--color-text); }
+
+
+/*.button-primary{
+background: linear-gradient(180deg, var(--color-primary), #2d89c7);
+color:#fff; border:0; border-radius: 12px; padding:.7rem 1rem; cursor:pointer;
+}
+.button-danger{ background: var(--color-danger); color:#fff; border:0; border-radius: 10px; padding:.6rem .9rem; }
+.button-ghost{ background:transparent; border:1px solid #e5e7eb; border-radius:10px; padding:.6rem .9rem; }*/
+
+.card{ background:var(--color-card); border-radius: var(--radius); box-shadow: var(--shadow); }
+
+.button-primary,
+.button-ghost,
+.button-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button-primary {
+  background: var(--color-primary);
+  color: white;
+}
+.button-primary:hover {
+  background: #254edb;
+}
+
+.button-ghost {
+  background: #eef0f8;
+  color: var(--color-text);
+}
+.button-ghost:hover {
+  background: #d6daf2;
+}
+
+.button-danger {
+  background: #ff4d4f;
+  color: white;
+}
+.button-danger:hover {
+  background: #d9363e;
 }

@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Setter
 @Getter
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "ThematicAxes")
@@ -16,4 +15,7 @@ public class ThematicAxes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idThematicAxes", nullable = false)
     private int idThematicAxes;
+
+    @Column(nullable = false, unique = true)
+    private String name;
 }

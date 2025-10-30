@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Setter
 @Getter
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "EvaluationCriteria")
@@ -16,5 +15,9 @@ public class EvaluationCriteria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idEvaluationCriteria", nullable = false)
     private int idEvaluationCriteria;
+
+    @Column(nullable = false, unique = true)
+    private String description;
+
 
 }

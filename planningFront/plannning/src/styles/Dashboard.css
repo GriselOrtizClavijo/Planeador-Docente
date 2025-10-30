@@ -1,0 +1,194 @@
+:root {
+  --azul-oscuro: #2c3e50;
+  --mostaza: #f39c12;
+  --azul-medio: #3498db;
+  --rojo: #e74c3c;
+  --fondo-suave: #f8f9fa;
+}
+
+/* === ESTRUCTURA GENERAL === */
+.dashboard-container {
+  background-color: var(--fondo-suave);
+  padding: 2rem;
+  min-height: 100vh;
+  color: var(--azul-oscuro);
+}
+
+.dashboard-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--azul-oscuro);
+}
+
+/* === CALENDARIO === */
+.calendar-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+/* Personalización de los botones del calendario */
+.rbc-toolbar button {
+  background-color: var(--azul-oscuro);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  margin: 0 2px;
+  transition: all 0.2s ease;
+}
+
+.rbc-toolbar button:hover {
+  background-color: var(--mostaza);
+  color: var(--azul-oscuro);
+}
+
+/* === CRUD SECTION === */
+.crud-section {
+  margin-top: 2rem;
+}
+
+.crud-title {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--azul-medio);
+}
+
+.crud-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+}
+
+.crud-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.crud-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.crud-card h3 {
+  color: var(--azul-oscuro);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+/* === BOTONES === */
+.crud-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.crud-buttons button {
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.9rem;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+/* Colores por acción */
+.btn-create {
+  background-color: var(--azul-medio);
+}
+.btn-create:hover {
+  background-color: var(--mostaza);
+  color: var(--azul-oscuro);
+}
+
+.btn-edit {
+  background-color: var(--mostaza);
+  color: var(--azul-oscuro);
+}
+.btn-edit:hover {
+  background-color: var(--azul-medio);
+  color: white;
+}
+
+.btn-delete {
+  background-color: var(--rojo);
+}
+.btn-delete:hover {
+  background-color: #c0392b;
+}
+
+.btn-list {
+  background-color: var(--azul-oscuro);
+}
+.btn-list:hover {
+  background-color: var(--mostaza);
+  color: var(--azul-oscuro);
+}*/
+
+
+/* src/styles/Dashboard.css */
+.grid-modules{
+display:grid;
+grid-template-columns: repeat(1, minmax(0,1fr));
+gap: 1rem;
+}
+@media (min-width: 880px){
+.grid-modules{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (min-width: 1240px){
+.grid-modules{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.tabs button {
+  background: #eef0f8;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: all 0.2s ease;
+}
+
+.tabs button:hover {
+  background: #d6daf2;
+}
+
+.tabs button.active {
+  background: var(--color-primary);
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content {
+  border-top: 2px solid #ddd;
+  padding-top: 1rem;
+}
+
+
+/* Pequeño tuneo del calendario para que herede la paleta */
+.rbc-toolbar button{ border-radius:8px; border:1px solid #e5e7eb; }
+.rbc-toolbar .rbc-btn-group > button.rbc-active,
+.rbc-toolbar .rbc-btn-group > button:hover{
+background: var(--color-accent); color:#fff; border-color: transparent;
+}
+.rbc-today { background: #fff7e6; }

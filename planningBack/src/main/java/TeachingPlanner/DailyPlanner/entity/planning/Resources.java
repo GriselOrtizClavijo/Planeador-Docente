@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Setter
 @Getter
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Resources")
@@ -16,5 +15,8 @@ public class Resources {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idResources", nullable = false)
     private int idResources;
+
+    @Column(nullable = false, unique = true)
+    private String name;
 
 }
