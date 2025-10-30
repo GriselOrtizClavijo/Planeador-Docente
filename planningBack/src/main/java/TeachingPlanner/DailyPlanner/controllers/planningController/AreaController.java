@@ -1,7 +1,7 @@
 package TeachingPlanner.DailyPlanner.controllers.planningController;
 
 
-import TeachingPlanner.DailyPlanner.entity.planning.Area;
+import TeachingPlanner.DailyPlanner.entity.planning.Areas;
 import TeachingPlanner.DailyPlanner.repository.planningRespository.AreaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +27,13 @@ public class AreaController {
 
 
     @GetMapping
-    public List<Area> list(){
+    public List<Areas> list(){
         return areaRepository.findAll();
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Area> get(@PathVariable Integer id){
+    public ResponseEntity<Areas> get(@PathVariable Integer id){
         return areaRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -41,18 +41,18 @@ public class AreaController {
 
 
     @PostMapping
-    public ResponseEntity<Area> create(@RequestBody Area body){
+    public ResponseEntity<Areas> create(@RequestBody Areas body){
 // Sólo requiere "name" (es único, ver Entity)
-        Area saved = areaRepository.save(body);
+        Areas saved = areaRepository.save(body);
         return ResponseEntity.created(URI.create("/api/areas/" + saved.getIdArea())).body(saved);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Area> update(@PathVariable Integer id, @RequestBody Area body){
-        Optional<Area> found = areaRepository.findById(id);
+    public ResponseEntity<Areas> update(@PathVariable Integer id, @RequestBody Areas body){
+        Optional<Areas> found = areaRepository.findById(id);
         if(found.isEmpty()) return ResponseEntity.notFound().build();
-        Area entity = found.get();
+        Areas entity = found.get();
         entity.setName(body.getName());
         return ResponseEntity.ok(areaRepository.save(entity));
     }

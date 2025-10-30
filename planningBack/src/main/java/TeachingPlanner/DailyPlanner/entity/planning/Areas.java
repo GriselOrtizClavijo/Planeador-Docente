@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "Area")
-public class Area {
+public class Areas {
 
 
     @Id

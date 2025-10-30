@@ -23,7 +23,7 @@ public class Dba {
 
     @ManyToMany
     @JoinTable(name = "dba_area", joinColumns = @JoinColumn(name = "idDba"), inverseJoinColumns = @JoinColumn(name = "idArea"))
-    private Set<Area> areas;
+    private Set<Areas> areas;
 
 
 

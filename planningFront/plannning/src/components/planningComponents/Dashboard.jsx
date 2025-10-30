@@ -88,7 +88,13 @@ export default function Dashboard() {
           >
             Act. de superación y profundización
           </button>
-                    <button
+          <button
+            className={activeTab === "recursos" ? "active" : ""}
+            onClick={() => setActiveTab("recursos")}
+          >
+            Recursos
+          </button>
+          <button
             className={activeTab === "aprendizajes" ? "active" : ""}
             onClick={() => setActiveTab("aprendizajes")}
           >
@@ -138,6 +144,13 @@ export default function Dashboard() {
               title="Act. de superación y profundización"
               endpoint="/api/self-improvement-activities"
               fields={[{ name: "name", label: "Actividad" }]}
+            />
+          )}
+                     {activeTab === "recursos" && (
+            <CrudModule
+              title="Recursos"
+              endpoint="/api/resources"
+              fields={[{ name: "name", label: "Recursos" }]}
             />
           )}
            {activeTab === "aprendizajes" && (
