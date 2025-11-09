@@ -1,7 +1,10 @@
 package TeachingPlanner.DailyPlanner.entity.planning;
 
+import TeachingPlanner.DailyPlanner.enums.Periods;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Set;
 
 @Entity
 @Setter
@@ -18,5 +21,6 @@ public class Resources {
 
     @Column(nullable = false, unique = true)
     private String name;
+
 
 }

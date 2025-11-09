@@ -1,14 +1,16 @@
 package TeachingPlanner.DailyPlanner.controllers.planningController;
 
+
+import TeachingPlanner.DailyPlanner.dto.planningDto.EvaluationCriteriaRequest;
+import TeachingPlanner.DailyPlanner.dto.planningDto.EvaluationCriteriaResponse;
 import TeachingPlanner.DailyPlanner.entity.planning.EvaluationCriteria;
-import TeachingPlanner.DailyPlanner.repository.planningRespository.EvaluationCriteriaRepository;
+import TeachingPlanner.DailyPlanner.service.planningService.EvaluationCriteriaService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
 @RestController
@@ -16,45 +18,47 @@ import java.util.Optional;
 @RequestMapping("/api/evaluation-criteria")
 public class EvaluationCriteriaController {
 
-
-    private final EvaluationCriteriaRepository evaluationCriteriaRepository;
+    private final EvaluationCriteriaService evaluationCriteriaService;
 
     @GetMapping
-    public List<EvaluationCriteria> list(){
-        return evaluationCriteriaRepository.findAll();
-    }
-
-
-    @GetMapping("/{id}")
-    public ResponseEntity<EvaluationCriteria> get(@PathVariable Integer id){
-        return evaluationCriteriaRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public List<EvaluationCriteriaResponse> list(){
+        return evaluationCriteriaService.list();
     }
 
 
     @PostMapping
-    public ResponseEntity<EvaluationCriteria> create(@RequestBody EvaluationCriteria body){
-        EvaluationCriteria saved = evaluationCriteriaRepository.save(body);
-        return ResponseEntity.created(URI.create("/api/evaluation-criteria/" + saved.getIdEvaluationCriteria())).body(saved);
+    public ResponseEntity<?> create(@RequestBody EvaluationCriteriaRequest request) {
+        try {
+            EvaluationCriteria created = evaluationCriteriaService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al crear el criterio de evaluación: " + e.getMessage());
+        }
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<EvaluationCriteria> update(@PathVariable Integer id, @RequestBody EvaluationCriteria body){
-        Optional<EvaluationCriteria> found = evaluationCriteriaRepository.findById(id);
-        if(found.isEmpty()) return ResponseEntity.notFound().build();
-        EvaluationCriteria entity = found.get();
-        entity.setDescription(body.getDescription());
-        return ResponseEntity.ok(evaluationCriteriaRepository.save(entity));
+    public ResponseEntity<?> update(@PathVariable int id, @RequestBody EvaluationCriteriaRequest request) {
+        try {
+            EvaluationCriteria updated = evaluationCriteriaService.update(id, request);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error al actualizar el criterio de evaluación: " + e.getMessage());
+        }
     }
 
-
+    // 🔹 4. Eliminar
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id){
-        if(!evaluationCriteriaRepository.existsById(id)) return ResponseEntity.notFound().build();
-        evaluationCriteriaRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> delete(@PathVariable int id) {
+        try {
+            evaluationCriteriaService.delete(id);
+            return ResponseEntity.ok("Criterio de evaluación eliminada correctamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error al eliminar el criterio de evaluación: " + e.getMessage());
+        }
     }
 
 }

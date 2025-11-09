@@ -4,6 +4,7 @@ import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "../../styles/Dashboard.css";
+import TabsPanel from "./TabsPanel";
 import CrudModule from "./CrudModule";
 
 const localizer = momentLocalizer(moment);
@@ -47,121 +48,10 @@ export default function Dashboard() {
       </section>
 
       {/* Módulos CRUD */}
-     <section className="card" style={{ padding: "1rem" }}>
-        <h2 style={{ fontSize: "1.3rem", marginBottom: ".8rem" }}>Catálogos</h2>
+    <section style={{ marginTop: "1.5rem" }}>
 
-        {/* Botones de pestañas */}
-        <div className="tabs">
-          <button
-            className={activeTab === "areas" ? "active" : ""}
-            onClick={() => setActiveTab("areas")}
-          >
-            Áreas
-          </button>
-          <button
-            className={activeTab === "dbas" ? "active" : ""}
-            onClick={() => setActiveTab("dbas")}
-          >
-            DBA
-          </button>
-          <button
-            className={activeTab === "competencias" ? "active" : ""}
-            onClick={() => setActiveTab("competencias")}
-          >
-            Competencias
-          </button>
-          <button
-            className={activeTab === "ejes" ? "active" : ""}
-            onClick={() => setActiveTab("ejes")}
-          >
-            Ejes temáticos
-          </button>
-          <button
-            className={activeTab === "criterios" ? "active" : ""}
-            onClick={() => setActiveTab("criterios")}
-          >
-            Criterios de Evaluación
-          </button>
-          <button
-            className={activeTab === "actividades" ? "active" : ""}
-            onClick={() => setActiveTab("actividades")}
-          >
-            Act. de superación y profundización
-          </button>
-          <button
-            className={activeTab === "recursos" ? "active" : ""}
-            onClick={() => setActiveTab("recursos")}
-          >
-            Recursos
-          </button>
-          <button
-            className={activeTab === "aprendizajes" ? "active" : ""}
-            onClick={() => setActiveTab("aprendizajes")}
-          >
-            Aprendizajes
-          </button>
-        </div>
-
-        {/* Contenido según pestaña */}
-        <div className="tab-content">
-          {activeTab === "areas" && (
-            <CrudModule
-              title="Áreas"
-              endpoint="/api/areas"
-              fields={[{ name: "name", label: "Nombre del Área" }]}
-            />
-          )}
-          {activeTab === "dbas" && (
-            <CrudModule
-              title="DBA"
-              endpoint="/api/dbas"
-              fields={[{ name: "name", label: "Descripción DBA" }]}
-            />
-          )}
-          {activeTab === "competencias" && (
-            <CrudModule
-              title="Competencias"
-              endpoint="/api/competencies"
-              fields={[{ name: "name", label: "Nombre/Descripción" }]}
-            />
-          )}
-          {activeTab === "ejes" && (
-            <CrudModule
-              title="Ejes temáticos"
-              endpoint="/api/thematic-axes"
-              fields={[{ name: "name", label: "Nombre del eje" }]}
-            />
-          )}
-          {activeTab === "criterios" && (
-            <CrudModule
-              title="Criterios de evaluación"
-              endpoint="/api/evaluation-criteria"
-              fields={[{ name: "name", label: "Criterio" }]}
-            />
-          )}
-          {activeTab === "actividades" && (
-            <CrudModule
-              title="Act. de superación y profundización"
-              endpoint="/api/self-improvement-activities"
-              fields={[{ name: "name", label: "Actividad" }]}
-            />
-          )}
-                     {activeTab === "recursos" && (
-            <CrudModule
-              title="Recursos"
-              endpoint="/api/resources"
-              fields={[{ name: "name", label: "Recursos" }]}
-            />
-          )}
-           {activeTab === "aprendizajes" && (
-            <CrudModule
-              title="Aprendizajes"
-              endpoint="/api/learning"
-              fields={[{ name: "name", label: "Actividad" }]}
-            />
-          )}
-        </div>
-      </section>
+  <TabsPanel />
+</section>
     </div>
   );
 }

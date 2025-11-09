@@ -1,59 +1,63 @@
 package TeachingPlanner.DailyPlanner.controllers.planningController;
 
 
+import TeachingPlanner.DailyPlanner.dto.planningDto.SelfImprovementActivitiesRequest;
+import TeachingPlanner.DailyPlanner.dto.planningDto.SelfImprovementActivitiesResponse;
 import TeachingPlanner.DailyPlanner.entity.planning.SelfImprovementActivities;
-import TeachingPlanner.DailyPlanner.repository.planningRespository.SelfImpActRepository;
+import TeachingPlanner.DailyPlanner.service.planningService.SelfImprovementActService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/learning")
+@RequestMapping("/api/self-improvement-activities")
 public class SelfImprovementActController {
 
-    private final SelfImpActRepository selfImpActRepository;
+    private final SelfImprovementActService selfImprovementActService;
 
     @GetMapping
-    public List<SelfImprovementActivities> list(){
-        return selfImpActRepository.findAll();
+    public List<SelfImprovementActivitiesResponse> list(){
+        return selfImprovementActService.list();
     }
 
-
-    @GetMapping("/{id}")
-    public ResponseEntity<SelfImprovementActivities> get(@PathVariable Integer id){
-        return selfImpActRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 
     @PostMapping
-    public ResponseEntity<SelfImprovementActivities> create(@RequestBody SelfImprovementActivities body){
-        SelfImprovementActivities saved = selfImpActRepository.save(body);
-        return ResponseEntity.created(URI.create("/api/evaluation-criteria/" + saved.getName())).body(saved);
+    public ResponseEntity<?> create(@RequestBody SelfImprovementActivitiesRequest request) {
+        try {
+            SelfImprovementActivities created = selfImprovementActService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al crear actividad de profundización: " + e.getMessage());
+        }
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<SelfImprovementActivities> update(@PathVariable Integer id, @RequestBody SelfImprovementActivities body){
-        Optional<SelfImprovementActivities> found = selfImpActRepository.findById(id);
-        if(found.isEmpty()) return ResponseEntity.notFound().build();
-        SelfImprovementActivities entity = found.get();
-        entity.setName(body.getName());
-        return ResponseEntity.ok(selfImpActRepository.save(entity));
+    public ResponseEntity<?> update(@PathVariable int id, @RequestBody SelfImprovementActivitiesRequest request) {
+        try {
+            SelfImprovementActivities updated = selfImprovementActService.update(id, request);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error al actualizar actividad de profundización: " + e.getMessage());
+        }
     }
 
-
+    // 🔹 4. Eliminar
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id){
-        if(!selfImpActRepository.existsById(id)) return ResponseEntity.notFound().build();
-        selfImpActRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> delete(@PathVariable int id) {
+        try {
+            selfImprovementActService.delete(id);
+            return ResponseEntity.ok("Actividad de profundización eliminada correctamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error al eliminar actividad de profundización: " + e.getMessage());
+        }
     }
-
 }

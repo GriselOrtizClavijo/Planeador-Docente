@@ -36,7 +36,7 @@ public class ResourcesController {
     @PostMapping
     public ResponseEntity<Resources> create(@RequestBody Resources body){
         Resources saved = resourcesRepository.save(body);
-        return ResponseEntity.created(URI.create("/api/evaluation-criteria/" + saved.getIdResources())).body(saved);
+        return ResponseEntity.created(URI.create("/api/resources/" + saved.getIdResources())).body(saved);
     }
 
 

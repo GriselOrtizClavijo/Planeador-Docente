@@ -1,59 +1,65 @@
 package TeachingPlanner.DailyPlanner.controllers.planningController;
 
+import TeachingPlanner.DailyPlanner.dto.planningDto.DbaRequest;
+import TeachingPlanner.DailyPlanner.dto.planningDto.DbaResponse;
 import TeachingPlanner.DailyPlanner.entity.planning.Dba;
-import TeachingPlanner.DailyPlanner.repository.planningRespository.DbaRepository;
-import lombok.AllArgsConstructor;
+import TeachingPlanner.DailyPlanner.service.planningService.DbaService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:5173") // Ajusta según tu frontend
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api/dbas")
 public class DbaController {
 
-    private final DbaRepository dbaRepository;
+    private final DbaService dbaService;
 
+    public DbaController(DbaService dbaService) {
+        this.dbaService = dbaService;
+    }
+
+    // 🔹 1. Listar todos los DBA
     @GetMapping
-    public List<Dba> list(){
-        return dbaRepository.findAll();
+    public List<DbaResponse> list() {
+        return dbaService.list();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Dba> get(@PathVariable Integer id){
-        return dbaRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-
+    // 🔹 2. Crear nuevo DBA
     @PostMapping
-    public ResponseEntity<Dba> create(@RequestBody Dba body){
-// Sólo requiere "name" (es único, ver Entity)
-        Dba saved = dbaRepository.save(body);
-        return ResponseEntity.created(URI.create("/api/dbas/" + saved.getIdDba())).body(saved);
+    public ResponseEntity<?> create(@RequestBody DbaRequest request) {
+        try {
+            Dba created = dbaService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al crear el DBA: " + e.getMessage());
+        }
     }
 
-
+    // 🔹 3. Editar un DBA existente
     @PutMapping("/{id}")
-    public ResponseEntity<Dba> update(@PathVariable Integer id, @RequestBody Dba body){
-        Optional<Dba> found = dbaRepository.findById(id);
-        if(found.isEmpty()) return ResponseEntity.notFound().build();
-        Dba entity = found.get();
-        entity.setDescription(body.getDescription());
-        return ResponseEntity.ok(dbaRepository.save(entity));
+    public ResponseEntity<?> update(@PathVariable int id, @RequestBody DbaRequest request) {
+        try {
+            Dba updated = dbaService.update(id, request);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error al actualizar el DBA: " + e.getMessage());
+        }
     }
 
-
+    // 🔹 4. Eliminar un DBA
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id){
-        if(!dbaRepository.existsById(id)) return ResponseEntity.notFound().build();
-        dbaRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> delete(@PathVariable int id) {
+        try {
+            dbaService.delete(id);
+            return ResponseEntity.ok("DBA eliminado correctamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error al eliminar el DBA: " + e.getMessage());
+        }
     }
-
 }

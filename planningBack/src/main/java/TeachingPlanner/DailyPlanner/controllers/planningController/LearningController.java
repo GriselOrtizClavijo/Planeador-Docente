@@ -1,9 +1,12 @@
 package TeachingPlanner.DailyPlanner.controllers.planningController;
 
 
+import TeachingPlanner.DailyPlanner.dto.planningDto.LearningRequest;
+import TeachingPlanner.DailyPlanner.dto.planningDto.LearningResponse;
 import TeachingPlanner.DailyPlanner.entity.planning.Learning;
-import TeachingPlanner.DailyPlanner.repository.planningRespository.LearningRepository;
+import TeachingPlanner.DailyPlanner.service.planningService.LearningService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,44 +20,47 @@ import java.util.Optional;
 @RequestMapping("/api/learning")
 public class LearningController {
 
-    private final LearningRepository learningRepository;
+    private final LearningService learningService;
 
     @GetMapping
-    public List<Learning> list(){
-        return learningRepository.findAll();
-    }
-
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Learning> get(@PathVariable Integer id){
-        return learningRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public List<LearningResponse> list(){
+        return learningService.list();
     }
 
 
     @PostMapping
-    public ResponseEntity<Learning> create(@RequestBody Learning body){
-        Learning saved = learningRepository.save(body);
-        return ResponseEntity.created(URI.create("/api/learning/" + saved.getIdLearning())).body(saved);
+    public ResponseEntity<?> create(@RequestBody LearningRequest request) {
+        try {
+            Learning created = learningService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al crear el aprendizaje: " + e.getMessage());
+        }
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Learning> update(@PathVariable Integer id, @RequestBody Learning body){
-        Optional<Learning> found = learningRepository.findById(id);
-        if(found.isEmpty()) return ResponseEntity.notFound().build();
-        Learning entity = found.get();
-        entity.setName(body.getName());
-        return ResponseEntity.ok(learningRepository.save(entity));
+    public ResponseEntity<?> update(@PathVariable int id, @RequestBody LearningRequest request) {
+        try {
+            Learning updated = learningService.update(id, request);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error al actualizar el aprendizaje: " + e.getMessage());
+        }
     }
 
-
+    // 🔹 4. Eliminar
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id){
-        if(!learningRepository.existsById(id)) return ResponseEntity.notFound().build();
-        learningRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> delete(@PathVariable int id) {
+        try {
+            learningService.delete(id);
+            return ResponseEntity.ok("Aprendizaje eliminada correctamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error al eliminar el aprendizaje: " + e.getMessage());
+        }
     }
 
 }

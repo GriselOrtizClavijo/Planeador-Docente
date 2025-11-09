@@ -1,17 +1,26 @@
+
 // src/components/planningComponents/CrudModule.jsx
 import { Plus, List, Pencil, Trash2, X } from "lucide-react";
 import React, { useState, useEffect } from "react";
 
-export default function CrudModule({ title, fields = [], endpoint }) {
-  const [items, setItems] = useState([]);
-  const [form, setForm] = useState({});
+import "../../styles/CrudModule.css";
+
+export default function CrudModule({ title, fields = [], endpoint, savedState = {}, onStateChange }) {
+
+  const [items, setItems] = useState(savedState.items || []);
+  const [form, setForm] = useState(savedState.form || {});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [showList, setShowList] = useState(false);
-  const [editingId, setEditingId] = useState(null);
+  const [showForm, setShowForm] = useState(savedState.showForm || false);
+  const [showList, setShowList] = useState(savedState.showList || false);
+  const [editingId, setEditingId] = useState(savedState.editingId || null);
 
-  // 🔹 Cargar lista
+
+  // 🔹 Nuevos estados para áreas y periodos
+  const [areas, setAreas] = useState([]);
+  const periodOptions = [1, 2, 3, 4];
+
+  // 🔹 Cargar lista general
   const load = async () => {
     try {
       setLoading(true);
@@ -26,13 +35,42 @@ export default function CrudModule({ title, fields = [], endpoint }) {
     }
   };
 
-  // 🔹 Manejar inputs
+  // 🔹 Cargar lista de áreas solo una vez
+  useEffect(() => {
+    const loadAreas = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/areas");
+        if (res.ok) {
+          const data = await res.json();
+          setAreas(data);
+        }
+      } catch (e) {
+        console.error("Error al cargar áreas:", e);
+      }
+    };
+    loadAreas();
+  }, []);
+
+  // 🔹 Manejar inputs de texto
   const onChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // 🔹 Manejar selección de área
+  const onAreaChange = (e) => {
+    setForm({ ...form, areaId: parseInt(e.target.value, 10) });
+  };
+
+  // 🔹 Manejar selección múltiple de periodos
+  const onPeriodChange = (e) => {
+    const selected = Array.from(e.target.selectedOptions, (opt) => opt.value);
+    const formatted = selected.map((num) => `PERIODO_${num}`);
+    setForm({ ...form, periods: formatted });
+  };
+
   // 🔹 Crear nuevo registro
   const startCreate = () => {
+    setForm({ periods: ["PERIODO_1"] });
     setForm({});
     setEditingId(null);
     setShowForm(true);
@@ -40,8 +78,12 @@ export default function CrudModule({ title, fields = [], endpoint }) {
 
   // 🔹 Editar existente
   const startEdit = (item) => {
-    setForm(item);
-    setEditingId(item.id ?? item.idArea ?? item.idDba);
+    setForm({
+      ...item,
+      areaId: item.areas?.idArea ?? "",
+      periods: item.periods ?? [],
+    });
+    setEditingId(item.id ?? item.idDba ?? item.idArea);
     setShowForm(true);
   };
 
@@ -51,9 +93,8 @@ export default function CrudModule({ title, fields = [], endpoint }) {
     try {
       const method = editingId ? "PUT" : "POST";
       const url = editingId
-          ? `http://localhost:8080${endpoint}/${editingId}`
-          : `http://localhost:8080${endpoint}`;
-
+        ? `http://localhost:8080${endpoint}/${editingId}`
+        : `http://localhost:8080${endpoint}`;
 
       const res = await fetch(url, {
         method,
@@ -69,8 +110,19 @@ export default function CrudModule({ title, fields = [], endpoint }) {
   };
 
   // 🔹 Eliminar
-  const remove = async (id) => {
+  // 🔹 Eliminar (versión automática y genérica)
+  const remove = async (item) => {
+    // 🔍 Buscar automáticamente el campo de ID (el que empieza por "id")
+    const idKey = Object.keys(item).find((k) => k.toLowerCase().startsWith("id"));
+    const id = idKey ? item[idKey] : null;
+
+    if (!id) {
+      alert("No se encontró el ID del registro para eliminar.");
+      return;
+    }
+
     if (!window.confirm("¿Seguro que deseas eliminar este registro?")) return;
+
     try {
       const res = await fetch(`http://localhost:8080${endpoint}/${id}`, {
         method: "DELETE",
@@ -88,6 +140,25 @@ export default function CrudModule({ title, fields = [], endpoint }) {
     setShowList(!showList);
   };
 
+  // 🔹 Determinar si este módulo usa área/periodos
+  const normalizedTitle = title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  const isComplexModule =
+    ["dba", "competencias", "ejes tematicos", "criterios de evaluacion", "actividades de profundizacion","aprendizajes","actividades de profundización"].includes(
+      normalizedTitle
+    );
+
+
+    React.useEffect(() => {
+    onStateChange({
+      items,
+      form,
+      showForm,
+      showList,
+      editingId,
+    });
+  }, [items, form, showForm, showList, editingId]);
+
   return (
     <div className="card" style={{ padding: "1rem" }}>
       {/* Header */}
@@ -101,6 +172,22 @@ export default function CrudModule({ title, fields = [], endpoint }) {
       >
         <h3 style={{ fontSize: "1.1rem", fontWeight: 700 }}>{title}</h3>
         <div style={{ display: "flex", gap: ".5rem" }}>
+          {/* 🔍 Filtro por área (solo visible si es módulo complejo) */}
+          {isComplexModule && areas.length > 0 && (
+            <select
+              value={form.filterAreaId || ""}
+              onChange={(e) => setForm({ ...form, filterAreaId: e.target.value })}
+              className="filter-select"
+            >
+              <option value="">Todas las áreas</option>
+              {areas.map((a) => (
+                <option key={a.idArea} value={a.idArea}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          )}
+
           <button className="button-primary" onClick={startCreate}>
             <Plus size={16} style={{ marginRight: "6px" }} />
             Crear
@@ -112,89 +199,69 @@ export default function CrudModule({ title, fields = [], endpoint }) {
         </div>
       </div>
 
-      {/* Mensajes */}
-      {loading && <p>Cargando…</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {/* Tabla (solo visible si se presiona “Listar”) */}
+      {/* --- TABLA --- */}
       {!loading && showList && items.length > 0 && (
-        <div
-          className="table-wrap"
-          style={{ overflowX: "auto", marginTop: ".8rem" }}
-        >
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="table-container">
+          <table className="styled-table">
             <thead>
               <tr>
                 {fields.map((f) => (
-                  <th
-                    key={f.name}
-                    style={{
-                      textAlign: "left",
-                      padding: "8px",
-                      borderBottom: "1px solid #eee",
-                    }}
-                  >
-                    {f.label}
-                  </th>
+                  <th key={f.name}>{f.label}</th>
                 ))}
+                {isComplexModule && <th>Área</th>}
+                {isComplexModule && <th>Periodos</th>}
                 <th style={{ width: 140 }}></th>
               </tr>
             </thead>
             <tbody>
-              {items.map((it) => (
-                <tr key={it.id ?? it.idArea ?? it.idDba ?? JSON.stringify(it)}>
-                  {fields.map((f) => (
-                    <td
-                      key={f.name}
-                      style={{
-                        padding: "8px",
-                        borderBottom: "1px solid #f2f2f2",
-                      }}
-                    >
-                      {String(it[f.name] ?? "")}
+              {items
+                .filter((it) => {
+                  // 🔍 filtrar por área si el usuario seleccionó una
+                  if (!form.filterAreaId) return true;
+                  return it.areas?.idArea === parseInt(form.filterAreaId);
+                })
+                .map((it) => (
+                  <tr key={it.id ?? it.idDba ?? it.idArea ?? JSON.stringify(it)}>
+                    {fields.map((f) => (
+                      <td key={f.name}>{String(it[f.name] ?? "")}</td>
+                    ))}
+
+                    {/* Mostrar nombre del área */}
+                    {isComplexModule && (
+                      <td>{it.areas?.name || "—"}</td>
+                    )}
+
+                    {/* Mostrar periodos en chips */}
+                    {isComplexModule && (
+                      <td>
+                        <div className="period-badges">
+                          {(it.periods || []).map((p) => {
+                            const num = p.split("_")[1];
+                            return (
+                              <span key={p} className={`period-badge period-${num}`}>
+                                {num}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </td>
+                    )}
+
+                    <td className="actions">
+                      <button className="button-ghost" onClick={() => startEdit(it)}>
+                        <Pencil size={16} /> Editar
+                      </button>
+                      <button className="button-danger" onClick={() => remove(it)}>
+                        <Trash2 size={16} /> Eliminar
+                      </button>
                     </td>
-                  ))}
-                  <td
-                    style={{
-                      padding: "8px",
-                      display: "flex",
-                      gap: ".5rem",
-                      justifyContent: "flex-start",
-                    }}
-                  >
-                    <button
-                      className="button-ghost"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px",
-                      }}
-                      onClick={() => startEdit(it)}
-                    >
-                      <Pencil size={16} />
-                      Editar
-                    </button>
-                    <button
-                      className="button-danger"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px",
-                      }}
-                      onClick={() =>
-                        remove(it.id ?? it.idArea ?? it.idDba)
-                      }
-                    >
-                      <Trash2 size={16} />
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
       )}
+
 
       {/* Modal */}
       {showForm && (
@@ -212,34 +279,85 @@ export default function CrudModule({ title, fields = [], endpoint }) {
             className="card"
             style={{
               width: "min(560px, 96vw)",
-              padding: "1rem 1.2rem",
-              boxShadow: "0 4px 14px rgba(0,0,0,.2)",
+              padding: "1.4rem",
+              boxShadow: "0 4px 14px rgba(0,0,0,.25)",
+              background: "#fff",
+              borderRadius: "12px",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "0.6rem",
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h4 style={{ fontSize: "1.05rem", fontWeight: 700 }}>
                 {editingId ? "Editar" : "Crear"} {title.slice(0, -1)}
               </h4>
-              <button
-                className="button-ghost"
-                onClick={() => setShowForm(false)}
-                style={{ display: "flex", alignItems: "center" }}
-              >
+              <button className="button-ghost" onClick={() => setShowForm(false)}>
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={submit} style={{ display: "grid", gap: ".75rem" }}>
+            <form onSubmit={submit} style={{ display: "grid", gap: ".9rem", marginTop: ".8rem" }}>
+             {isComplexModule && (
+                <>
+                  {/* Selector de área */}
+                  <div>
+                    <label htmlFor="areaId" style={{ fontWeight: 600 }}>Área</label>
+                    <select
+                      id="areaId"
+                      name="areaId"
+                      value={form.areaId || ""}
+                      onChange={onAreaChange}
+                      className="form-select"
+                      style={{
+                        width: "100%",
+                        padding: ".6rem",
+                        borderRadius: "8px",
+                        border: "1px solid #ccc",
+                      }}
+                      required
+                    >
+                      <option value="">Seleccione un área</option>
+                      {areas.map((a) => (
+                        <option key={a.idArea} value={a.idArea}>
+                          {a.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Selector de periodos con colores */}
+                  <div className="periods-group">
+                    <label style={{ fontWeight: 600 }}>Periodos</label>
+                    <div className="period-buttons">
+                      {periodOptions.map((p) => {
+                        const isSelected = form.periods?.includes(`PERIODO_${p}`);
+                        return (
+                          <button
+                            type="button"
+                            key={p}
+                            className={`period-btn period-${p} ${isSelected ? "selected" : ""}`}
+                            onClick={() => {
+                              const current = new Set(form.periods || []);
+                              if (isSelected) {
+                                current.delete(`PERIODO_${p}`);
+                              } else {
+                                current.add(`PERIODO_${p}`);
+                              }
+                              setForm({ ...form, periods: Array.from(current) });
+                            }}
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+
+
+              {/* Campos de texto normales */}
               {fields.map((f) => (
                 <div key={f.name} style={{ display: "grid", gap: ".35rem" }}>
-                  <label htmlFor={f.name} style={{ fontSize: ".92rem" }}>
+                  <label htmlFor={f.name} style={{ fontWeight: 600 }}>
                     {f.label}
                   </label>
                   <input
@@ -251,26 +369,16 @@ export default function CrudModule({ title, fields = [], endpoint }) {
                     className="card"
                     style={{
                       padding: ".65rem .8rem",
-                      outline: "none",
-                      border: "1px solid #e7e8ea",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
                     }}
+                    required
                   />
                 </div>
               ))}
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: ".6rem",
-                  justifyContent: "flex-end",
-                  marginTop: ".5rem",
-                }}
-              >
-                <button
-                  type="button"
-                  className="button-ghost"
-                  onClick={() => setShowForm(false)}
-                >
+              <div style={{ display: "flex", gap: ".6rem", justifyContent: "flex-end" }}>
+                <button type="button" className="button-ghost" onClick={() => setShowForm(false)}>
                   Cancelar
                 </button>
                 <button type="submit" className="button-primary">
