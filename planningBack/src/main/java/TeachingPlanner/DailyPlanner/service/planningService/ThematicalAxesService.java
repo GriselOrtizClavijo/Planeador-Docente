@@ -1,9 +1,11 @@
 package TeachingPlanner.DailyPlanner.service.planningService;
 
 
+import TeachingPlanner.DailyPlanner.dto.planningDto.DbaResponse;
 import TeachingPlanner.DailyPlanner.dto.planningDto.ThematicAxesRequest;
 import TeachingPlanner.DailyPlanner.dto.planningDto.ThematicAxesResponse;
 import TeachingPlanner.DailyPlanner.entity.planning.Areas;
+import TeachingPlanner.DailyPlanner.entity.planning.Dba;
 import TeachingPlanner.DailyPlanner.entity.planning.Learning;
 import TeachingPlanner.DailyPlanner.entity.planning.ThematicAxes;
 import TeachingPlanner.DailyPlanner.repository.planningRespository.AreaRepository;
@@ -24,7 +26,7 @@ public class ThematicalAxesService {
         this.areaRepo = areaRepo;
     }
 
-    public List<ThematicAxesResponse> list() {
+    /*public List<ThematicAxesResponse> list() {
         return repo.findAll()
                 .stream()
                 .map(c -> new ThematicAxesResponse(
@@ -32,6 +34,21 @@ public class ThematicalAxesService {
                         c.getName(),
                         c.getAreas(),
                         c.getPeriods()
+                ))
+                .toList();
+    }*/
+
+    public List<ThematicAxesResponse> list(Integer areaId) {
+        List<ThematicAxes> thematicAxesList = (areaId != null)
+                ? repo.findByAreas_IdArea(areaId)
+                : repo.findAll();
+
+        return thematicAxesList.stream()
+                .map(d -> new ThematicAxesResponse(
+                        d.getIdThematicAxes(),
+                        d.getName(),
+                        d.getAreas(),
+                        d.getPeriods()
                 ))
                 .toList();
     }

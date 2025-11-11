@@ -21,8 +21,8 @@ public class EvaluationCriteriaController {
     private final EvaluationCriteriaService evaluationCriteriaService;
 
     @GetMapping
-    public List<EvaluationCriteriaResponse> list(){
-        return evaluationCriteriaService.list();
+    public List<EvaluationCriteriaResponse> list(@RequestParam(required = false) Integer areaId){
+        return evaluationCriteriaService.list(areaId);
     }
 
 

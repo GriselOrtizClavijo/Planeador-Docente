@@ -23,13 +23,28 @@ public class CompetenciesService {
         this.areaRepo = areaRepo;
     }
 
-    public List<CompetenciesResponse> list() {
+   /* public List<CompetenciesResponse> list() {
         return repo.findAll().stream()
                 .map(c -> new CompetenciesResponse(
                         c.getIdCompetencies(),
                         c.getName(),
                         c.getAreas(),
                         c.getPeriods()
+                ))
+                .toList();
+    }*/
+
+    public List<CompetenciesResponse> list(Integer areaId) {
+        List<Competencies> competenciesList = (areaId != null)
+                ? repo.findByAreas_IdArea(areaId)
+                : repo.findAll();
+
+        return competenciesList.stream()
+                .map(d -> new CompetenciesResponse(
+                        d.getIdCompetencies(),
+                        d.getName(),
+                        d.getAreas(),
+                        d.getPeriods()
                 ))
                 .toList();
     }

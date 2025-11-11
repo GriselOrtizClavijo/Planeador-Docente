@@ -21,8 +21,8 @@ public class SelfImprovementActController {
     private final SelfImprovementActService selfImprovementActService;
 
     @GetMapping
-    public List<SelfImprovementActivitiesResponse> list(){
-        return selfImprovementActService.list();
+    public List<SelfImprovementActivitiesResponse> list(@RequestParam(required = false) Integer areaId){
+        return selfImprovementActService.list(areaId);
     }
 
 

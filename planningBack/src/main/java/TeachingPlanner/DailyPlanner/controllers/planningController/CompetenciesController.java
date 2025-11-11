@@ -26,8 +26,8 @@ public class CompetenciesController {
     private final CompetenciesService competenciesService;
 
     @GetMapping
-    public List<CompetenciesResponse> list(){
-        return competenciesService.list();
+    public List<CompetenciesResponse> list(@RequestParam(required = false) Integer areaId){
+        return competenciesService.list(areaId);
     }
 
 

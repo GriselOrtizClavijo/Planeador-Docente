@@ -21,8 +21,8 @@ public class ThematicAxesController {
     private final ThematicalAxesService thematicalAxesService;
 
     @GetMapping
-    public List<ThematicAxesResponse> list(){
-        return thematicalAxesService.list();
+    public List<ThematicAxesResponse> list(@RequestParam(required = false) Integer areaId){
+        return thematicalAxesService.list(areaId);
     }
 
 

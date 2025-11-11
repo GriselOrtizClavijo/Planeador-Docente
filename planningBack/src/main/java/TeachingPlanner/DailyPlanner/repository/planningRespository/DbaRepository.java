@@ -4,7 +4,9 @@ import TeachingPlanner.DailyPlanner.entity.planning.Dba;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface DbaRepository extends JpaRepository<Dba, Integer> {
-    // Spring Data JPA generará automáticamente los métodos CRUD
+    List<Dba> findByAreas_IdArea(Integer areaId);
 }

@@ -77,37 +77,61 @@ export default function CrudModule({ title, fields = [], endpoint, savedState = 
   };
 
   // 🔹 Editar existente
-  const startEdit = (item) => {
-    setForm({
-      ...item,
-      areaId: item.areas?.idArea ?? "",
-      periods: item.periods ?? [],
-    });
-    setEditingId(item.id ?? item.idDba ?? item.idArea);
-    setShowForm(true);
-  };
+  // 🔹 Editar existente
+      const startEdit = (item) => {
+        const detectedId =
+          item.id ??
+          item.idDba ??
+          item.idLearning ??
+          item.idCompetencies ??
+          item.idThematicAxes ??
+          item.idEvaluationCriteria ??
+          item.idActivity ??
+          item.idSiA ??
+          item.idArea;
+          //item.idResource ??
+          
+
+        setForm({
+          ...item,
+          areaId: item.areas?.idArea || item.areaId || "",
+          periods: item.periods || [],
+        });
+        setEditingId(detectedId);
+        setShowForm(true);
+      };
+
 
   // 🔹 Guardar (crear o editar)
   const submit = async (e) => {
-    e.preventDefault();
-    try {
-      const method = editingId ? "PUT" : "POST";
-      const url = editingId
-        ? `http://localhost:8080${endpoint}/${editingId}`
-        : `http://localhost:8080${endpoint}`;
+  e.preventDefault();
+  try {
+    const method = editingId ? "PUT" : "POST";
+    const url = editingId
+      ? `http://localhost:8080${endpoint}/${editingId}`
+      : `http://localhost:8080${endpoint}`;
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error("Error al guardar");
-      await load();
-      setShowForm(false);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+    // 🧹 Limpiamos campos innecesarios
+    const payload = { ...form };
+    delete payload.areas; // 🔥 evita error "Bad Request"
+    delete payload.filterAreaId;
+
+    console.log("🛰️ Enviando datos:", JSON.stringify(payload)); // 👀 depuración
+
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error("Error al guardar");
+    await load();
+    setShowForm(false);
+  } catch (err) {
+    setError(err.message);
+  }
+};
+
 
   // 🔹 Eliminar
   // 🔹 Eliminar (versión automática y genérica)
@@ -123,7 +147,7 @@ export default function CrudModule({ title, fields = [], endpoint, savedState = 
 
     if (!window.confirm("¿Seguro que deseas eliminar este registro?")) return;
 
-    try {
+    try {  
       const res = await fetch(`http://localhost:8080${endpoint}/${id}`, {
         method: "DELETE",
       });

@@ -1,0 +1,272 @@
+.form-select {
+  background: #f8f9fa;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.95rem;
+}
+
+.button-primary {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.button-primary:hover {
+  background-color: #217dbb;
+}
+
+.button-ghost {
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.button-ghost:hover {
+  background: #f2f2f2;
+}
+
+.button-danger {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.button-danger:hover {
+  background-color: #c0392b;
+}
+
+/* 🔘 Botones de periodos */
+.periods-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.period-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.period-btn {
+  background: #f2f3f6;
+  border: 1px solid #cfd6dd;
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  color: #333;
+}
+
+.period-btn:hover {
+  background: #e7ebf3;
+}
+
+.period-btn.selected {
+  background: #0078d7;
+  color: white;
+  border-color: #0064b5;
+  box-shadow: 0 0 0 2px rgba(0, 120, 215, 0.15);
+}
+
+/* 🎨 Botones de periodos con color por número */
+.period-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.period-btn {
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #333;
+  transition: all 0.25s ease;
+}
+
+/* 🔹 Estados base (no seleccionados) */
+.period-1 { border-color: #27ae60; color: #27ae60; background: #ecf9f1; }
+.period-2 { border-color: #f39c12; color: #f39c12; background: #fff7ec; }
+.period-3 { border-color: #e67e22; color: #e67e22; background: #fff2e6; }
+.period-4 { border-color: #e74c3c; color: #e74c3c; background: #fdecea; }
+.period-5 { border-color: #3498db; color: #3498db; background: #eef6fc; }
+
+/* 🔸 Hover */
+.period-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* 🔹 Estado seleccionado */
+.period-btn.selected {
+  color: white;
+  transform: translateY(-1px);
+}
+
+/*.period-1.selected { background: #27ae60; border-color: #27ae60; }
+.period-2.selected { background: #f39c12; border-color: #f39c12; }
+.period-3.selected { background: #e67e22; border-color: #e67e22; }
+.period-4.selected { background: #e74c3c; border-color: #e74c3c; }
+.period-5.selected { background: #3498db; border-color: #3498db; }*/
+
+
+/* 🔘 Animación sutil al hacer clic */
+.period-btn:active {
+  transform: scale(0.97);
+}
+
+/* 🎨 Colores por periodo */
+.periods-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.period-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  min-width: 28px;
+  text-align: center;
+}
+
+/* 🌈 Colores por número */
+.period-1 { background-color: #4caf50; }   /* Verde */
+.period-2 { background-color: #2196f3; }   /* Azul */
+.period-3 { background-color: #ff9800; }   /* Naranja */
+.period-4 { background-color: #9c27b0; }   /* Morado */
+.period-5 { background-color: #e91e63; }   /* Rosa */
+
+/* ✨ Hover bonito */
+.period-tag:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+  transition: 0.2s;
+}
+
+/* 🪶 Filas
+.table-wrap table tr:hover {
+  background-color: #f9fafb;
+  transition: background-color 0.2s;
+}
+
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table-wrap th {
+  background-color: #f8f9fb;
+  font-weight: 600;
+  padding: 10px;
+  color: #2b2b2b;
+}
+
+.table-wrap td {
+  padding: 10px;
+  vertical-align: middle;
+}
+
+.table-wrap tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.table-wrap tr:hover {
+  background-color: #f1f5ff;
+  transition: 0.3s;
+}
+*/
+
+/* --- Tabla limpia con bordes suaves --- */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+
+.styled-table thead {
+  background-color: #f9fafc;
+  border-bottom: 2px solid #e3e6ec;
+}
+
+.styled-table th,
+.styled-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e8e9ec;
+  font-size: 0.95rem;
+}
+
+.styled-table th {
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.styled-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* --- Filtro select --- */
+.filter-select {
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #cccccc94;
+  background: #fff;
+  font-size: 0.9rem;
+}
+
+/* --- Chips de periodos --- */
+.period-badges {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.period-badge {
+  display: inline-block;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.period-1 {
+  background: #2ecc71; /* verde */
+}
+.period-2 {
+  background: #3498db; /* azul */
+}
+.period-3 {
+  background: #f39c12; /* naranja */
+}
+.period-4 {
+  background: #9b59b6; /* violeta */
+}
+.period-5 {
+  background: #e74c3c; /* rojo */
+}
+
+.actions {
+  display: flex;
+  gap: 0.4rem;
+}

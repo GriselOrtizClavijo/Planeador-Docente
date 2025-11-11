@@ -1,0 +1,75 @@
+/* =============================
+   🗂️ ESTILO DE PESTAÑAS "FOLDER"
+   ============================= */
+
+.tabs-container {
+  display: flex;
+  flex-direction: column;
+  background: #f9fafc;  
+  border-radius: 12px;
+  padding: 0rem;
+  margin-top: 0rem;
+}
+
+.folder-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  border-bottom: 2px solid #e1e4e8;
+  padding-bottom: 0.2rem;
+}
+
+.folder-tab {
+  position: relative;
+  background: #e9edf3;
+  border: 1px solid #d0d7de;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 0.6rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: #4a4a4a;
+  transition: all 0.25s ease;
+  top: 2px;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.05);
+}
+
+.folder-tab:hover {
+  background: #f2f5fa;
+  color: #111;
+}
+
+.folder-tab.active {
+  background: #fff;
+  color: #0078d7;
+  font-weight: 600;
+  border-color: #0078d7;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+  z-index: 2;
+}
+
+.folder-content {
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 0 0 8px 8px;
+  margin-top: -1px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+/* 📱 Responsive para móviles */
+@media (max-width: 768px) {
+  .folder-tabs {
+    flex-direction: column;
+  }
+
+  .folder-tab {
+    border-radius: 8px;
+    border-bottom: 1px solid #d0d7de;
+  }
+
+  .folder-content {
+    border-top: none;
+  }
+}

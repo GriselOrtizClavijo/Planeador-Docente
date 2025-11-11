@@ -1,36 +1,51 @@
 package TeachingPlanner.DailyPlanner.service.planningService;
 
 
+import TeachingPlanner.DailyPlanner.dto.planningDto.CompetenciesResponse;
 import TeachingPlanner.DailyPlanner.dto.planningDto.EvaluationCriteriaRequest;
 import TeachingPlanner.DailyPlanner.dto.planningDto.EvaluationCriteriaResponse;
 import TeachingPlanner.DailyPlanner.entity.planning.Areas;
+import TeachingPlanner.DailyPlanner.entity.planning.Competencies;
 import TeachingPlanner.DailyPlanner.entity.planning.EvaluationCriteria;
 import TeachingPlanner.DailyPlanner.entity.planning.Learning;
 import TeachingPlanner.DailyPlanner.repository.planningRespository.AreaRepository;
 import TeachingPlanner.DailyPlanner.repository.planningRespository.EvaluationCriteriaRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class EvaluationCriteriaService {
 
     private final EvaluationCriteriaRepository evaluationCriteriaRepository;
     private final AreaRepository areaRepo;
 
-    public EvaluationCriteriaService(EvaluationCriteriaRepository repo, AreaRepository areaRepo) {
-        this.evaluationCriteriaRepository = repo;
-        this.areaRepo = areaRepo;
-    }
 
-    public List<EvaluationCriteriaResponse> list() {
+   /* public List<EvaluationCriteriaResponse> list() {
         return evaluationCriteriaRepository.findAll().stream()
                 .map(c -> new EvaluationCriteriaResponse(
                         c.getIdEvaluationCriteria(),
                         c.getDescription(),
                         c.getAreas(),
                         c.getPeriods()
+                ))
+                .toList();
+    }*/
+
+    public List<EvaluationCriteriaResponse> list(Integer areaId) {
+        List<EvaluationCriteria> evaluationCriteriaList = (areaId != null)
+                ? evaluationCriteriaRepository.findByAreas_IdArea (areaId)
+                : evaluationCriteriaRepository.findAll();
+
+        return evaluationCriteriaList.stream()
+                .map(d -> new EvaluationCriteriaResponse(
+                        d.getIdEvaluationCriteria(),
+                        d.getDescription(),
+                        d.getAreas(),
+                        d.getPeriods()
                 ))
                 .toList();
     }

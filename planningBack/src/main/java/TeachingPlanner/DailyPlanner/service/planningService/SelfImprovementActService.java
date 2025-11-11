@@ -1,8 +1,10 @@
 package TeachingPlanner.DailyPlanner.service.planningService;
 
+import TeachingPlanner.DailyPlanner.dto.planningDto.CompetenciesResponse;
 import TeachingPlanner.DailyPlanner.dto.planningDto.SelfImprovementActivitiesRequest;
 import TeachingPlanner.DailyPlanner.dto.planningDto.SelfImprovementActivitiesResponse;
 import TeachingPlanner.DailyPlanner.entity.planning.Areas;
+import TeachingPlanner.DailyPlanner.entity.planning.Competencies;
 import TeachingPlanner.DailyPlanner.entity.planning.Learning;
 import TeachingPlanner.DailyPlanner.entity.planning.SelfImprovementActivities;
 import TeachingPlanner.DailyPlanner.repository.planningRespository.AreaRepository;
@@ -23,13 +25,28 @@ public class SelfImprovementActService {
         this.areaRepo = areaRepo;
     }
 
-    public List<SelfImprovementActivitiesResponse> list() {
+    /*public List<SelfImprovementActivitiesResponse> list() {
         return repo.findAll().stream()
                 .map(c -> new SelfImprovementActivitiesResponse(
                         c.getIdSiA(),
                         c.getName(),
                         c.getAreas(),
                         c.getPeriods()
+                ))
+                .toList();
+    }*/
+
+    public List<SelfImprovementActivitiesResponse> list(Integer areaId) {
+        List<SelfImprovementActivities> selfImprovementActivitiesList = (areaId != null)
+                ? repo.findByAreas_IdArea(areaId)
+                : repo.findAll();
+
+        return selfImprovementActivitiesList.stream()
+                .map(d -> new SelfImprovementActivitiesResponse(
+                        d.getIdSiA(),
+                        d.getName(),
+                        d.getAreas(),
+                        d.getPeriods()
                 ))
                 .toList();
     }

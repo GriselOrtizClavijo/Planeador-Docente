@@ -23,7 +23,7 @@ public class DbaService {
     }
 
     // 🔹 Listar todos
-    public List<DbaResponse> list() {
+    /*public List<DbaResponse> list() {
         return dbaRepository.findAll()
                 .stream()
                 .map(d -> new DbaResponse(
@@ -31,6 +31,21 @@ public class DbaService {
                         d.getDescription(),
                         d.getAreas(),
                         d.getPeriods()))
+                .toList();
+    }*/
+
+    public List<DbaResponse> list(Integer areaId) {
+        List<Dba> dbaList = (areaId != null)
+                ? dbaRepository.findByAreas_IdArea(areaId)
+                : dbaRepository.findAll();
+
+        return dbaList.stream()
+                .map(d -> new DbaResponse(
+                        d.getIdDba(),
+                        d.getDescription(),
+                        d.getAreas(),
+                        d.getPeriods()
+                ))
                 .toList();
     }
 

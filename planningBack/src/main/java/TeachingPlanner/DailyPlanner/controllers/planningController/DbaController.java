@@ -23,9 +23,25 @@ public class DbaController {
 
     // 🔹 1. Listar todos los DBA
     @GetMapping
-    public List<DbaResponse> list() {
-        return dbaService.list();
+    public List<DbaResponse> list(@RequestParam(required = false) Integer areaId) {
+        return dbaService.list(areaId);
     }
+
+    /*@GetMapping
+    public List<DbaResponse> list(@RequestParam(required = false) Integer areaId) {
+        if (areaId != null) {
+            return dbaRepository.findByAreas_IdArea(areaId)
+                    .stream()
+                    .map(d -> new DbaResponse(
+                            d.getIdDba(),
+                            d.getDescription(),
+                            d.getAreas(),
+                            d.getPeriods()
+                    ))
+                    .toList();
+        }
+        return dbaService.list();
+    }*/
 
     // 🔹 2. Crear nuevo DBA
     @PostMapping

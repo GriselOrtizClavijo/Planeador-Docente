@@ -23,8 +23,8 @@ public class LearningController {
     private final LearningService learningService;
 
     @GetMapping
-    public List<LearningResponse> list(){
-        return learningService.list();
+    public List<LearningResponse> list(@RequestParam(required = false) Integer areaId){
+        return learningService.list(areaId);
     }
 
 

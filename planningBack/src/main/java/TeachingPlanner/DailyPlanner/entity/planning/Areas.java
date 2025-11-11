@@ -1,5 +1,6 @@
 package TeachingPlanner.DailyPlanner.entity.planning;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,7 +24,30 @@ public class Areas {
     private String name;
 
     // 🔹 Relación con DBA (un área puede tener muchos DBAs)
-    @OneToMany(mappedBy = "areas", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("areas")
+    @OneToMany(mappedBy = "areas", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Dba> dbas;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "areas", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Competencies> competencies;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "areas", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Learning> learnings;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "areas", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<EvaluationCriteria> evaluationCriteria;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "areas", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<SelfImprovementActivities> selfImprovementActivities;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "areas", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ThematicAxes> thematicAxes;
+
+
+
 }

@@ -1,8 +1,10 @@
 package TeachingPlanner.DailyPlanner.service.planningService;
 
+import TeachingPlanner.DailyPlanner.dto.planningDto.CompetenciesResponse;
 import TeachingPlanner.DailyPlanner.dto.planningDto.LearningRequest;
 import TeachingPlanner.DailyPlanner.dto.planningDto.LearningResponse;
 import TeachingPlanner.DailyPlanner.entity.planning.Areas;
+import TeachingPlanner.DailyPlanner.entity.planning.Competencies;
 import TeachingPlanner.DailyPlanner.entity.planning.Dba;
 import TeachingPlanner.DailyPlanner.entity.planning.Learning;
 import TeachingPlanner.DailyPlanner.repository.planningRespository.AreaRepository;
@@ -23,7 +25,7 @@ public class LearningService {
         this.areaRepo = areaRepo;
     }
 
-    public List<LearningResponse> list() {
+    /*public List<LearningResponse> list() {
         return repo.findAll().stream()
                 .map(c -> new LearningResponse(
                         c.getIdLearning(),
@@ -32,7 +34,23 @@ public class LearningService {
                         c.getPeriods()
                 ))
                 .toList();
+    }*/
+
+    public List<LearningResponse> list(Integer areaId) {
+        List<Learning> learningList = (areaId != null)
+                ? repo.findByAreas_IdArea(areaId)
+                : repo.findAll();
+
+        return learningList.stream()
+                .map(d -> new LearningResponse(
+                        d.getIdLearning(),
+                        d.getName(),
+                        d.getAreas(),
+                        d.getPeriods()
+                ))
+                .toList();
     }
+
 
     public Learning create(LearningRequest req) {
         Areas area = areaRepo.findById(req.getAreaId())
