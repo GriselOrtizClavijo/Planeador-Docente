@@ -11,7 +11,7 @@ import TeachingPlanner.DailyPlanner.service.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173",  "http://localhost:3000"}, allowCredentials = "true")
 public class AuthController {
 
     // Inyectamos el Servicio de Usuarios, donde reside la lógica de Hashing.

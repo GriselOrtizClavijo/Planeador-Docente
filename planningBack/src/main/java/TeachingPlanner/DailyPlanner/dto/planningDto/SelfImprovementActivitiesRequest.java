@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class SelfImprovementActivitiesRequest {
 
-    private String name;   // 👈 debe coincidir con el front
     private Integer areaId;
+    private String name;   // 👈 debe coincidir con el front
     private Set<Periods> periods;
 }

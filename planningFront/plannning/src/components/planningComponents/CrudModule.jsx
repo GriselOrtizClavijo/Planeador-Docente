@@ -122,6 +122,7 @@ export default function CrudModule({ title, fields = [], endpoint, savedState = 
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      credentials: "include",
     });
 
     if (!res.ok) throw new Error("Error al guardar");
