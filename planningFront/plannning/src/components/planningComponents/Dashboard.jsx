@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";  // 👈 nuevo import
@@ -11,12 +11,35 @@ const localizer = momentLocalizer(moment);
 export default function Dashboard() {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const events = useMemo(() => [], []);
+  const [events, setEvents] = useState([]);
+
 
   const onSelectSlot = (slot) => {
     const day = moment(slot.start).format("YYYY-MM-DD");
     navigate(`/plan-diario/${day}`); // 👈 te llevará a la nueva página
   };
+
+  const loadEvents = async () => {
+  try {
+    const res = await fetch("http://localhost:8080/api/daily-plan/events");
+    const data = await res.json();
+
+    const formatted = data.map(ev => ({
+      title: ev.areaName,
+      start: new Date(ev.date),
+      end: new Date(ev.date),
+      state: ev.state
+    }));
+
+    setEvents(formatted);
+  } catch (e) {
+    console.error("Error cargando eventos:", e);
+  }
+};
+
+useEffect(() => {
+  loadEvents();
+}, []);
 
   return (
     <div style={{ display: "grid", gap: "1.2rem", padding: "1rem" }}>
