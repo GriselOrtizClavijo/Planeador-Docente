@@ -1,5 +1,6 @@
 package TeachingPlanner.DailyPlanner.controllers.daily;
 
+import TeachingPlanner.DailyPlanner.dto.daily.DailyPlanEventResponse;
 import TeachingPlanner.DailyPlanner.dto.daily.DailyPlanRequest;
 import TeachingPlanner.DailyPlanner.dto.daily.DailyPlanResponse;
 import TeachingPlanner.DailyPlanner.entity.daily.DailyPlan;
@@ -38,6 +39,19 @@ public class DailyPlanController {
         }
     }
 
+    // 🔹 Update an existing daily plan
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable int id, @RequestBody DailyPlanRequest request) {
+        try {
+            DailyPlan updated = dailyPlanService.update(id,request);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error while updating daily plan: " + e.getMessage());
+        }
+    }
+
+
     // 🔹 List all plans
     @GetMapping
     public List<DailyPlanResponse> list() {
@@ -45,17 +59,17 @@ public class DailyPlanController {
     }
 
     // 🔹 List plans by specific date (for daily view)
-    @GetMapping("/by-date/{date}")
-    public ResponseEntity<List<DailyPlanResponse>> getByDate(@PathVariable String date) {
+    // 🔹 List plans by specific date (for daily view)
+    @GetMapping("/by-date/{fecha}")
+    public ResponseEntity<List<DailyPlanResponse>> getByDate(@PathVariable LocalDate fecha) {
         try {
-            LocalDate localDate = LocalDate.parse(date);
-            List<DailyPlanResponse> plans = dailyPlanService.listByDate(localDate);
+            List<DailyPlanResponse> plans = dailyPlanService.listByDate(fecha);
             return ResponseEntity.ok(plans);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
 
     // 🔹 Get general plan status by day (for calendar coloring)
     @GetMapping("/states")
@@ -64,17 +78,10 @@ public class DailyPlanController {
         return ResponseEntity.ok(states);
     }
 
-    @GetMapping("/eventos")
-    public List<Map<String, Object>> obtenerEventos() {
-        return dailyPlanService.list().stream()
-                .map(p -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("idPlan", p.getIdPlan());
-                    map.put("areaName", p.getArea().getName());
-                    map.put("date", p.getDate().toString());
-                    map.put("state", p.getState().toString());
-                    return map;
-                })
-                .collect(Collectors.toList());
+    @GetMapping("/events")
+    public List<DailyPlanEventResponse> eventosDelCalendario() {
+        return dailyPlanService.eventosCalendario();
     }
+
+
 }

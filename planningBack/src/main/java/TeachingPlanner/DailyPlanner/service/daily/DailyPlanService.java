@@ -1,5 +1,6 @@
 package TeachingPlanner.DailyPlanner.service.daily;
 
+import TeachingPlanner.DailyPlanner.dto.daily.DailyPlanEventResponse;
 import TeachingPlanner.DailyPlanner.dto.daily.DailyPlanRequest;
 import TeachingPlanner.DailyPlanner.dto.daily.DailyPlanResponse;
 import TeachingPlanner.DailyPlanner.entity.daily.DailyPlan;
@@ -85,4 +86,43 @@ public class DailyPlanService {
 
         return stateByDay;
     }
+
+    public List<DailyPlanEventResponse> eventosCalendario() {
+        return planRepo.findAll().stream()
+                .map(p -> new DailyPlanEventResponse(
+                        p.getDate(),
+                        p.getArea().getName(),
+                        p.getState().name()
+                ))
+                .toList();
+    }
+
+
+    public DailyPlan update(int id, DailyPlanRequest req) {
+
+        DailyPlan plan = planRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Daily plan not found"));
+
+        Areas area = areaRepo.findById(req.getAreaId())
+                .orElse(plan.getArea()); // si no cambia el área, deja la actual
+
+        plan.setDate(LocalDate.parse(req.getDate()));
+        plan.setArea(area);
+        plan.setState(StatePlan.valueOf(req.getState().toUpperCase()));
+        plan.setIdDba(req.getIdDba());
+        plan.setIdCompetencies(req.getIdCompetencies());
+        plan.setIdLearning(req.getIdLearning());
+        plan.setIdThematicAxes(req.getIdThematicAxes());
+        plan.setIdEvaluationCriteria(req.getIdEvaluationCriteria());
+        plan.setIdSiA(req.getIdSiA());
+        plan.setIdResources(req.getIdResources());
+        plan.setObservations(req.getObservations());
+
+        return planRepo.save(plan);
+    }
+
+
+
+
+
 }

@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface DailyPlanRepository extends JpaRepository<DailyPlan, Integer> {
     List<DailyPlan> findByDate(LocalDate date);
+
 }

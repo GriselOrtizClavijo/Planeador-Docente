@@ -1,5 +1,6 @@
 package TeachingPlanner.DailyPlanner.dto.daily;
 
+import TeachingPlanner.DailyPlanner.enums.StatePlan;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
