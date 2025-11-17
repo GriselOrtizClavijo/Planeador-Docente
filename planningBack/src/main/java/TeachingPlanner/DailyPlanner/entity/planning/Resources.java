@@ -1,14 +1,12 @@
 package TeachingPlanner.DailyPlanner.entity.planning;
 
-import TeachingPlanner.DailyPlanner.enums.Periods;
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.util.Set;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Resources")
@@ -16,11 +14,27 @@ public class Resources {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idResources", nullable = false)
+    @Column(name = "idResources")
     private int idResources;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Column(nullable = false, unique = true)
     private String name;
-
-
 }

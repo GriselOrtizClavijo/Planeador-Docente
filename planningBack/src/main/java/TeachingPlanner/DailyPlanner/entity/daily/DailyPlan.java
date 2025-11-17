@@ -1,11 +1,14 @@
 package TeachingPlanner.DailyPlanner.entity.daily;
 
 import TeachingPlanner.DailyPlanner.entity.planning.Areas;
+import TeachingPlanner.DailyPlanner.entity.planning.Resources;
 import TeachingPlanner.DailyPlanner.enums.StatePlan;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -40,6 +43,14 @@ public class DailyPlan {
     private Integer idThematicAxes;
     private Integer idEvaluationCriteria;
     private Integer idSiA;
-    private Integer idResources;
+
+    @ManyToMany
+    @JoinTable(
+            name = "dailyplan_resources",
+            joinColumns = @JoinColumn(name = "idPlan"),
+            inverseJoinColumns = @JoinColumn(name = "idResources")
+    )
+    private List<Resources> resources = new ArrayList<>(); ;
+
 
 }

@@ -1,8 +1,12 @@
 package TeachingPlanner.DailyPlanner.controllers.planningController;
 
+import TeachingPlanner.DailyPlanner.dto.daily.DailyPlanRequest;
+import TeachingPlanner.DailyPlanner.entity.daily.DailyPlan;
 import TeachingPlanner.DailyPlanner.entity.planning.Resources;
 import TeachingPlanner.DailyPlanner.repository.planningRespository.ResourcesRepository;
+import TeachingPlanner.DailyPlanner.service.daily.DailyPlanService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,7 @@ public class ResourcesController {
 
 
     private final ResourcesRepository resourcesRepository;
+    private final DailyPlanService dailyPlanService;
 
     @GetMapping
     public List<Resources> list(){
@@ -35,19 +40,28 @@ public class ResourcesController {
 
     @PostMapping
     public ResponseEntity<Resources> create(@RequestBody Resources body){
+        System.out.println("📥 PETICIÓN RECIBIDA PARA CREATE:");
+        System.out.println(body);
         Resources saved = resourcesRepository.save(body);
         return ResponseEntity.created(URI.create("/api/resources/" + saved.getIdResources())).body(saved);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Resources> update(@PathVariable Integer id, @RequestBody Resources body){
-        Optional<Resources> found = resourcesRepository.findById(id);
-        if(found.isEmpty()) return ResponseEntity.notFound().build();
-        Resources entity = found.get();
-        entity.setName(body.getName());
-        return ResponseEntity.ok(resourcesRepository.save(entity));
+    public ResponseEntity<?> update(@PathVariable int id, @RequestBody DailyPlanRequest request) {
+        System.out.println("📥 PETICIÓN RECIBIDA PARA UPDATE:");
+        System.out.println(request);
+
+        try {
+            DailyPlan updated = dailyPlanService.update(id, request);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            e.printStackTrace(); // ← esto mostrará el error real
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error while updating daily plan: " + e.getMessage());
+        }
     }
+
 
 
     @DeleteMapping("/{id}")

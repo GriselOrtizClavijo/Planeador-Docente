@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,7 +21,7 @@ public class DailyPlanRequest {
     private Integer idThematicAxes;
     private Integer idEvaluationCriteria;
     private Integer idSiA;
-    private Integer idResources;
+    private List<Integer> resources;
     private String observations;
 
 

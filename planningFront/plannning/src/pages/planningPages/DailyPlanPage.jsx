@@ -126,6 +126,22 @@ export default function DailyPlanPage() {
                   >
                     Completar
                   </button>
+                  <button
+                    className="button-danger"
+                    onClick={async () => {
+                      if (!window.confirm("¿Eliminar esta materia del día?")) return;
+
+                      await fetch(`http://localhost:8080/api/daily-plan/${m.idPlan}`, {
+                        method: "DELETE"
+                      });
+                      loadMaterias();
+                      window.dispatchEvent(new Event("updateCalendar"));
+
+                    }}
+                    style={{ padding: ".4rem 1rem", marginLeft: ".5rem" }}
+                  >
+                    Eliminar
+                  </button>
                 </div>
               );
             })}
@@ -141,6 +157,7 @@ export default function DailyPlanPage() {
             // crear varios planes vacíos
             materias.forEach((materia) => {
               crearPlanVacio(materia);
+              window.dispatchEvent(new Event("updateCalendar"));
             });
           }}
           onCancel={() => setSeleccionando(false)}

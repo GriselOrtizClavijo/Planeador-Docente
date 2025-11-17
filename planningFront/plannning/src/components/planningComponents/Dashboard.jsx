@@ -37,13 +37,45 @@ export default function Dashboard() {
   }
 };
 
+/*useEffect(() => {
+  loadEvents();
+}, []);*/
+
+
 useEffect(() => {
   loadEvents();
+
+  // 👂 Escuchar actualizaciones del calendario
+  const handler = () => loadEvents();
+  window.addEventListener("updateCalendar", handler);
+
+  return () => window.removeEventListener("updateCalendar", handler);
 }, []);
+
 
   return (
     <div style={{ display: "grid", gap: "1.2rem", padding: "1rem" }}>
       <section className="card" style={{ padding: ".8rem" }}>
+
+  {/* LEYENDA */}
+        <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: ".4rem" }}>
+            <div style={{
+              width: "16px", height: "16px",
+              background: "#28a745", borderRadius: "4px"
+            }}></div>
+            <span style={{ fontSize: ".9rem" }}>Día completo</span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: ".4rem" }}>
+            <div style={{
+              width: "16px", height: "16px",
+              background: "#f4c542", borderRadius: "4px"
+            }}></div>
+            <span style={{ fontSize: ".9rem" }}>Día incompleto</span>
+          </div>
+        </div>
+
         <h2 style={{ margin: ".4rem 0 1rem", fontSize: "1.3rem" }}>
           Calendario
         </h2>
@@ -59,6 +91,19 @@ useEffect(() => {
           onSelectSlot={onSelectSlot}
           views={["month", "week", "day"]}
           popup
+
+          eventPropGetter={(event) => {
+          const color = event.state === "COMPLETE" ? "#28a745" : "#f4c542";
+          return {
+            style: {
+              backgroundColor: color,
+              color: "#000",
+              borderRadius: "6px",
+              border: "none"
+            }
+          };
+          }}
+
         />
       </section>
           <section style={{ marginTop: "1.5rem" }}>

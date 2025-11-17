@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 
 export default function DailyPlanForm({ area, fecha, plan, onSaved, onCancel }) {
+
+
   const [form, setForm] = useState({
     idPlan: plan.idPlan ?? null,
     areaId: area.idArea,
@@ -13,7 +15,7 @@ export default function DailyPlanForm({ area, fecha, plan, onSaved, onCancel }) 
     idThematicAxes: plan.idThematicAxes ?? "",
     idEvaluationCriteria: plan.idEvaluationCriteria ?? "",
     idSiA: plan.idSiA ?? "",
-    idResources: plan.idResources ?? "",
+    resources: plan.resources?.map(r => r.idResources) ?? [],
     observations: plan.observations ?? ""
   });
 
@@ -79,68 +81,79 @@ export default function DailyPlanForm({ area, fecha, plan, onSaved, onCancel }) 
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 🔹 GUARDAR FORMULARIO
-  const onSubmit = async (e) => {
-    e.preventDefault();
 
-    const method = form.idPlan ? "PUT" : "POST";
-    const url = form.idPlan
-      ? `http://localhost:8080/api/daily-plan/${form.idPlan}`
-      : `http://localhost:8080/api/daily-plan`;
+          // ⛔ Protección: evita que se ejecute si no hay área
+        if (!area || !area.idArea) {
+          return <p>Cargando datos del área...</p>;
+        }
+
+        const normalize = (value) => {
+          return value === "" ? null : value;
+        };
+
+
+      const actualizarEstado = async (nuevoEstado) => {
+      const normalize = (value) => value === "" ? null : value;
 
       const payload = {
         ...form,
-        state: translateState[form.state] // 🔥 traducción obligatoria
+        state: nuevoEstado,
+        resources: form.resources ?? [],
+        idDba: normalize(form.idDba),
+        idCompetencies: normalize(form.idCompetencies),
+        idLearning: normalize(form.idLearning),
+        idThematicAxes: normalize(form.idThematicAxes),
+        idEvaluationCriteria: normalize(form.idEvaluationCriteria),
+        idSiA: normalize(form.idSiA)
       };
 
-      
-      const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
 
-    if (!res.ok) {
-      alert("Error al guardar planeación");
-      return;
-    }
 
-    onSaved();
-  };
 
-    // ⛔ Protección: evita que se ejecute si no hay área
-  if (!area || !area.idArea) {
-    return <p>Cargando datos del área...</p>;
-  }
+        const url = form.idPlan
+          ? `http://localhost:8080/api/daily-plan/${form.idPlan}`
+          : `http://localhost:8080/api/daily-plan`;
 
-  const actualizarEstado = async (nuevoEstado) => {
-  const url = `http://localhost:8080/api/daily-plan/${form.idPlan}`;
+        const method = form.idPlan ? "PUT" : "POST";
 
-  const res = await fetch(url, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...form, state: nuevoEstado })
-  });
+        const res = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
 
-  if (!res.ok) {
-    alert("No se pudo actualizar el estado");
-    return;
-  }
+        if (!res.ok) {
+          alert("No se pudo guardar");
+          return;
+        }
 
-  onSaved();
-};
+        onSaved();
+        window.dispatchEvent(new Event("updateCalendar"));
+      };
+
+          // 🔹 Subir imágenes al backend
+    const uploadImages = async () => {
+      if (!form.idPlan) return;
+
+      for (const img of imagenes) {
+        const formData = new FormData();
+        formData.append("file", img);
+
+        try {
+          await fetch(`http://localhost:8080/api/daily-plan/images/${form.idPlan}`, {
+            method: "POST",
+            body: formData
+          });
+        } catch (e) {
+          console.error("Error subiendo imagen:", e);
+        }
+      }
+    };
+
 
 
   return (
-    <form className="card" style={{ padding: "1.4rem", marginTop: "2rem" }} onSubmit={onSubmit}>
-      <button
-        type="button"
-        onClick={onCancel}
-        className="button-ghost"
-        style={{ marginBottom: "1rem" }}
-      >
-        ⬅ Volver
-      </button>
+    <form className="card" style={{ padding: "1.4rem", marginTop: "2rem" }}>
 
       <h3>{area.name}</h3>
       <p style={{ fontSize: ".9rem", color: "#555" }}>Fecha: {fecha}</p>
@@ -191,22 +204,11 @@ export default function DailyPlanForm({ area, fecha, plan, onSaved, onCancel }) 
 
       {/* ACTIVIDADES DE PROFUNDIZACIÓN */}
       <div>
-        <label>Actividades</label>
+        <label>Actividades de profundización</label>
         <select name="idSiA" value={form.idSiA} onChange={onChange}>
           <option value="">Seleccione una actividad</option>
           {datos.actividades.map((a) => (
             <option key={a.idSiA} value={a.idSiA}>{a.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* RECURSOS */}
-      <div>
-        <label>Recursos</label>
-        <select name="idResources" value={form.idResources} onChange={onChange}>
-          <option value="">Seleccione un recurso</option>
-          {datos.recursos.map((r) => (
-            <option key={r.idResources} value={r.idResources}>{r.name}</option>
           ))}
         </select>
       </div>
@@ -224,7 +226,7 @@ export default function DailyPlanForm({ area, fecha, plan, onSaved, onCancel }) 
 
       {/* OBSERVACIONES */}
       <div>
-        <label>Observaciones</label>
+        <label>Descripción de la actividad</label>
         <textarea
           name="observations"
           value={form.observations}
@@ -234,8 +236,68 @@ export default function DailyPlanForm({ area, fecha, plan, onSaved, onCancel }) 
         ></textarea>
       </div>
 
-      <div>
-  <label>Imágenes (máximo 3)</label>
+      
+      {/* RECURSOS */}
+     <div>
+  <label style={{ fontWeight: "600" }}>Recursos (puede seleccionar varios)</label>
+
+  <div
+    style={{
+      border: "1px solid #ccc",
+      borderRadius: "6px",
+      padding: "10px",
+      maxHeight: "150px",
+      overflowY: "auto",
+      background: "white",
+      marginTop: "4px"
+    }}
+  >
+    {datos.recursos.map((r) => {
+      const seleccionado = form.resources.includes(r.idResources);
+
+      return (
+        <label
+          key={r.idResources}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "4px 0",
+            cursor: "pointer"
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={seleccionado}
+            onChange={() => {
+              let nuevos;
+
+              if (seleccionado) {
+                // quitar
+                nuevos = form.resources.filter(id => id !== r.idResources);
+              } else {
+                // agregar
+                nuevos = [...form.resources, r.idResources];
+              }
+
+              setForm({ ...form, resources: nuevos });
+            }}
+          />
+
+          {r.name}
+        </label>
+      );
+    })}
+  </div>
+</div>
+
+
+    {/* IMÁGENES */}
+<div style={{ marginTop: "1rem" }}>
+  <label style={{ fontWeight: 600 }}>
+    Imágenes (máximo 3)
+  </label>
+
   <input
     type="file"
     accept="image/png, image/jpeg, image/jpg"
@@ -243,13 +305,11 @@ export default function DailyPlanForm({ area, fecha, plan, onSaved, onCancel }) 
     onChange={(e) => {
       const files = Array.from(e.target.files);
 
-      // validar límite
-      if (files.length + imagenes.length > 3) {
-        alert("Máximo puedes subir 3 imágenes.");
+      if (imagenes.length + files.length > 3) {
+        alert("Solo puedes subir máximo 3 imágenes.");
         return;
       }
 
-      // validar tipo
       const permitidos = ["image/png", "image/jpeg", "image/jpg"];
       const validos = files.filter((f) => permitidos.includes(f.type));
 
@@ -260,69 +320,97 @@ export default function DailyPlanForm({ area, fecha, plan, onSaved, onCancel }) 
 
       setImagenes((prev) => [...prev, ...validos]);
     }}
+    style={{ marginTop: ".4rem" }}
   />
+
+  {/* Contador */}
+  <p style={{ fontSize: ".8rem", color: "#555", marginTop: ".3rem" }}>
+    Total seleccionadas: {imagenes.length} / 3
+  </p>
+
+  {/* Lista de nombres */}
+  {imagenes.length > 0 && (
+    <ul style={{ marginTop: ".5rem", paddingLeft: "1.2rem" }}>
+      {imagenes.map((img, index) => (
+        <li key={index} style={{ marginBottom: ".3rem" }}>
+          {img.name}
+        </li>
+      ))}
+    </ul>
+  )}
+
+  {/* Vista previa */}
+  {imagenes.length > 0 && (
+    <div style={{
+      display: "flex",
+      gap: "1rem",
+      marginTop: "1rem",
+      flexWrap: "wrap"
+    }}>
+      {imagenes.map((img, index) => (
+        <div key={index} style={{ textAlign: "center" }}>
+          <img
+            src={URL.createObjectURL(img)}
+            alt="preview"
+            style={{
+              width: 120,
+              height: 120,
+              objectFit: "cover",
+              borderRadius: 8,
+              border: "1px solid #ccc"
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={() =>
+              setImagenes((prev) => prev.filter((_, i) => i !== index))
+            }
+            style={{
+              marginTop: ".5rem",
+              background: "#ff4d4d",
+              color: "white",
+              border: "none",
+              padding: ".3rem .6rem",
+              borderRadius: 6,
+              cursor: "pointer",
+            }}
+          >
+            Eliminar
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
 </div>
+         
 
-        {/* Vista previa */}
-        {imagenes.length > 0 && (
-          <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", flexWrap: "wrap" }}>
-            {imagenes.map((img, index) => (
-              <div key={index} style={{ textAlign: "center" }}>
-                <img
-                  src={URL.createObjectURL(img)}
-                  alt="preview"
-                  style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8, border: "1px solid #ccc" }}
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setImagenes((prev) => prev.filter((_, i) => i !== index))
-                  }
-                  style={{
-                    marginTop: ".5rem",
-                    background: "#ff4d4d",
-                    color: "white",
-                    border: "none",
-                    padding: ".3rem .6rem",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                  }}
-                >
-                  Eliminar
-                </button>
-              </div>
-            ))}
-          </div>,
-          
-          console.log("📸 Imágenes seleccionadas:", imagenes)
-        )}
+          <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+          <button
+            type="button"
+            className="button-ghost"
+            onClick={() => actualizarEstado("INCOMPLETE")}
+          >
+            ⏳ Guardar como pendiente
+          </button>
 
+          <button
+            type="button"
+            className="button-primary"
+            onClick={() => actualizarEstado("COMPLETE")}
+          >
+            ✔ Guardar como completado
+          </button>
 
-      {/* BOTONES */}
-      <div style={{ display: "flex", gap: ".8rem", marginTop: "1rem" }}>
-        <button type="button" className="button-ghost" onClick={onCancel}>
-          Cancelar
-        </button>
-        <button type="submit" className="button-primary">
-          Guardar planeación
-        </button>
-      </div>
-      <button
-      type="button"
-      className="button-primary"
-      onClick={() => actualizarEstado("COMPLETE")}
-    >
-      ✔ Marcar como completado
-    </button>
-
-    <button
-      type="button"
-      className="button-ghost"
-      onClick={() => actualizarEstado("INCOMPLETE")}
-    >
-      ⏳ Marcar como pendiente
-    </button>
-
+          <button
+            type="button"
+            className="button-ghost"
+            onClick={onCancel}
+          >
+            Cancelar
+          </button>
+        </div>
+      
     </form>
   );
 }

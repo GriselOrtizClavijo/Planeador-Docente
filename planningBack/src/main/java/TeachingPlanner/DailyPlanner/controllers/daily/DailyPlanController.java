@@ -46,10 +46,13 @@ public class DailyPlanController {
             DailyPlan updated = dailyPlanService.update(id,request);
             return ResponseEntity.ok(updated);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error while updating daily plan: " + e.getMessage());
         }
     }
+
+
 
 
     // 🔹 List all plans
@@ -81,6 +84,17 @@ public class DailyPlanController {
     @GetMapping("/events")
     public List<DailyPlanEventResponse> eventosDelCalendario() {
         return dailyPlanService.eventosCalendario();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable int id) {
+        try {
+            dailyPlanService.delete(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error deleting daily plan: " + e.getMessage());
+        }
     }
 
 

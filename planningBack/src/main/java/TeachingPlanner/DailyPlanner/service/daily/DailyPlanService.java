@@ -5,9 +5,11 @@ import TeachingPlanner.DailyPlanner.dto.daily.DailyPlanRequest;
 import TeachingPlanner.DailyPlanner.dto.daily.DailyPlanResponse;
 import TeachingPlanner.DailyPlanner.entity.daily.DailyPlan;
 import TeachingPlanner.DailyPlanner.entity.planning.Areas;
+import TeachingPlanner.DailyPlanner.entity.planning.Resources;
 import TeachingPlanner.DailyPlanner.enums.StatePlan;
 import TeachingPlanner.DailyPlanner.repository.daily.DailyPlanRepository;
 import TeachingPlanner.DailyPlanner.repository.planningRespository.AreaRepository;
+import TeachingPlanner.DailyPlanner.repository.planningRespository.ResourcesRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class DailyPlanService {
 
     private final DailyPlanRepository planRepo;
     private final AreaRepository areaRepo;
+    private final ResourcesRepository resourcesRepository;
 
     // 🔹 Create new daily plan
     public DailyPlan create(DailyPlanRequest req) {
@@ -40,14 +43,23 @@ public class DailyPlanService {
                 .idThematicAxes(req.getIdThematicAxes())
                 .idEvaluationCriteria(req.getIdEvaluationCriteria())
                 .idSiA(req.getIdSiA())
-                .idResources(req.getIdResources())
+                .resources(
+                        req.getResources() == null
+                                ? List.of()
+                                : req.getResources()
+                                .stream()
+                                .map(id -> resourcesRepository.findById(id)
+                                        .orElseThrow(() -> new RuntimeException("Recurso no encontrado: " + id))
+                                )
+                                .toList()
+                )
+
                 .observations(req.getObservations())
                 .build();
 
         return planRepo.save(plan);
     }
 
-    // 🔹 List all plans
     public List<DailyPlanResponse> list() {
         return planRepo.findAll().stream()
                 .map(p -> new DailyPlanResponse(
@@ -55,11 +67,18 @@ public class DailyPlanService {
                         p.getDate(),
                         p.getArea(),
                         p.getState(),
-                        p.getObservations()
+                        p.getObservations(),
+                        p.getIdDba(),
+                        p.getIdCompetencies(),
+                        p.getIdLearning(),
+                        p.getIdThematicAxes(),
+                        p.getIdEvaluationCriteria(),
+                        p.getIdSiA(),
+                        p.getResources()
+
                 )).toList();
     }
 
-    // 🔹 List plans by date
     public List<DailyPlanResponse> listByDate(LocalDate date) {
         return planRepo.findByDate(date).stream()
                 .map(p -> new DailyPlanResponse(
@@ -67,7 +86,14 @@ public class DailyPlanService {
                         p.getDate(),
                         p.getArea(),
                         p.getState(),
-                        p.getObservations()
+                        p.getObservations(),
+                        p.getIdDba(),
+                        p.getIdCompetencies(),
+                        p.getIdLearning(),
+                        p.getIdThematicAxes(),
+                        p.getIdEvaluationCriteria(),
+                        p.getIdSiA(),
+                        p.getResources()
                 )).toList();
     }
 
@@ -104,7 +130,7 @@ public class DailyPlanService {
                 .orElseThrow(() -> new EntityNotFoundException("Daily plan not found"));
 
         Areas area = areaRepo.findById(req.getAreaId())
-                .orElse(plan.getArea()); // si no cambia el área, deja la actual
+                .orElse(plan.getArea());
 
         plan.setDate(LocalDate.parse(req.getDate()));
         plan.setArea(area);
@@ -115,11 +141,32 @@ public class DailyPlanService {
         plan.setIdThematicAxes(req.getIdThematicAxes());
         plan.setIdEvaluationCriteria(req.getIdEvaluationCriteria());
         plan.setIdSiA(req.getIdSiA());
-        plan.setIdResources(req.getIdResources());
+
+        // 🔹 CORREGIDO: multi-resources
+        if (req.getResources() != null) {
+            List<Resources> recursoList = req.getResources().stream()
+                    .map(resourceId -> resourcesRepository.findById(resourceId)
+                            .orElseThrow(() -> new RuntimeException("Recurso no encontrado: " + resourceId))
+                    )
+                    .toList();
+
+            plan.getResources().clear();
+            plan.getResources().addAll(recursoList);
+        }
+
         plan.setObservations(req.getObservations());
 
         return planRepo.save(plan);
     }
+
+
+    public void delete(int id) {
+        if (!planRepo.existsById(id)) {
+            throw new EntityNotFoundException("Daily plan not found");
+        }
+        planRepo.deleteById(id);
+    }
+
 
 
 
