@@ -1,416 +1,413 @@
 // src/components/planningComponents/DailyPlanForm.jsx
 import React, { useState, useEffect } from "react";
 
-export default function DailyPlanForm({ area, fecha, plan, onSaved, onCancel }) {
+export default function DailyPlanForm({
+	area,
+	fecha,
+	plan,
+	onSaved,
+	onCancel,
+}) {
+	const [form, setForm] = useState({
+		idPlan: plan.idPlan ?? null,
+		areaId: area.idArea,
+		date: fecha,
+		state: plan.state ?? "INCOMPLETE",
+		idDba: plan.idDba ?? "",
+		idCompetencies: plan.idCompetencies ?? "",
+		idLearning: plan.idLearning ?? "",
+		idThematicAxes: plan.idThematicAxes ?? "",
+		idEvaluationCriteria: plan.idEvaluationCriteria ?? "",
+		idSiA: plan.idSiA ?? "",
+		resources: plan.resources?.map((r) => r.idResources) ?? [],
+		observations: plan.observations ?? "",
+	});
 
+	const [datos, setDatos] = useState({
+		dbas: [],
+		competencias: [],
+		learning: [],
+		ejes: [],
+		criterios: [],
+		actividades: [],
+		recursos: [],
+	});
 
-  const [form, setForm] = useState({
-    idPlan: plan.idPlan ?? null,
-    areaId: area.idArea,
-    date: fecha,
-    state: plan.state ?? "INCOMPLETE",
-    idDba: plan.idDba ?? "",
-    idCompetencies: plan.idCompetencies ?? "",
-    idLearning: plan.idLearning ?? "",
-    idThematicAxes: plan.idThematicAxes ?? "",
-    idEvaluationCriteria: plan.idEvaluationCriteria ?? "",
-    idSiA: plan.idSiA ?? "",
-    resources: plan.resources?.map(r => r.idResources) ?? [],
-    observations: plan.observations ?? ""
-  });
+	const [imagenesGuardadas, setImagenesGuardadas] = useState([]);
+	const [imagenes, setImagenes] = useState([]);
 
-  const [datos, setDatos] = useState({
-    dbas: [],
-    competencias: [],
-    learning: [],
-    ejes: [],
-    criterios: [],
-    actividades: [],
-    recursos: []
-  });
+	// ✔ Cargar imágenes guardadas (fuera del useEffect)
+	const loadSavedImages = async (planId) => {
+		if (!planId) return;
 
-  const translateState = {
-  INCOMPLETE: "INCOMPLETE",
-  COMPLETE: "COMPLETE",
-  INCOMPLETO: "INCOMPLETE",
-  COMPLETO: "COMPLETE"
-  };
+		try {
+			const res = await fetch(
+				`http://localhost:8080/api/daily-plan/images/${planId}`
+			);
+			const data = await res.json();
+			setImagenesGuardadas(data);
+		} catch (e) {
+			console.error("Error cargando imágenes:", e);
+		}
+	};
 
+	// ✔ SOLO UN useEffect – sin nested hooks
+	useEffect(() => {
+		const load = async () => {
+			const id = area.idArea;
 
-    // Estado para imágenes seleccionadas
-  const [imagenes, setImagenes] = React.useState([]);
+			const [
+				dbas,
+				competencias,
+				learning,
+				ejes,
+				criterios,
+				actividades,
+				recursos,
+			] = await Promise.all([
+				fetch(`http://localhost:8080/api/dbas?areaId=${id}`).then((r) =>
+					r.json()
+				),
+				fetch(`http://localhost:8080/api/competencies?areaId=${id}`).then((r) =>
+					r.json()
+				),
+				fetch(`http://localhost:8080/api/learning?areaId=${id}`).then((r) =>
+					r.json()
+				),
+				fetch(`http://localhost:8080/api/thematic-axes?areaId=${id}`).then(
+					(r) => r.json()
+				),
+				fetch(
+					`http://localhost:8080/api/evaluation-criteria?areaId=${id}`
+				).then((r) => r.json()),
+				fetch(
+					`http://localhost:8080/api/self-improvement-activities?areaId=${id}`
+				).then((r) => r.json()),
+				fetch(`http://localhost:8080/api/resources?areaId=${id}`).then((r) =>
+					r.json()
+				),
+			]);
 
-  // 🔹 Cargar catálogos de la materia
-  useEffect(() => {
-    const load = async () => {
-      const id = area.idArea;
+			setDatos({
+				dbas,
+				competencias,
+				learning,
+				ejes,
+				criterios,
+				actividades,
+				recursos,
+			});
 
-      const [
-        dbas,
-        competencias,
-        learning,
-        ejes,
-        criterios,
-        actividades,
-        recursos
-      ] = await Promise.all([
-        fetch(`http://localhost:8080/api/dbas?areaId=${id}`).then((r) => r.json()),
-        fetch(`http://localhost:8080/api/competencies?areaId=${id}`).then((r) => r.json()),
-        fetch(`http://localhost:8080/api/learning?areaId=${id}`).then((r) => r.json()),
-        fetch(`http://localhost:8080/api/thematic-axes?areaId=${id}`).then((r) => r.json()),
-        fetch(`http://localhost:8080/api/evaluation-criteria?areaId=${id}`).then((r) => r.json()),
-        fetch(`http://localhost:8080/api/self-improvement-activities?areaId=${id}`).then((r) => r.json()),
-        fetch(`http://localhost:8080/api/resources?areaId=${id}`).then((r) => r.json())
-      ]);
+			// 🔥 cargar imágenes guardadas
+			await loadSavedImages(form.idPlan);
+		};
 
-      setDatos({
-        dbas,
-        competencias,
-        learning,
-        ejes,
-        criterios,
-        actividades,
-        recursos
-      });
-    };
+		load();
+	}, [area, form.idPlan]);
 
-    load();
-  }, [area]);
+	const onChange = (e) => {
+		setForm({ ...form, [e.target.name]: e.target.value });
+	};
 
-  const onChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+	// ✔ Normalizador
+	const normalize = (value) => (value === "" ? null : value);
 
+	// ✔ Actualizar estado y subir imágenes
+	const actualizarEstado = async (nuevoEstado) => {
+		const payload = {
+			...form,
+			state: nuevoEstado,
+			idDba: normalize(form.idDba),
+			idCompetencies: normalize(form.idCompetencies),
+			idLearning: normalize(form.idLearning),
+			idThematicAxes: normalize(form.idThematicAxes),
+			idEvaluationCriteria: normalize(form.idEvaluationCriteria),
+			idSiA: normalize(form.idSiA),
+			resources: form.resources ?? [],
+		};
 
-          // ⛔ Protección: evita que se ejecute si no hay área
-        if (!area || !area.idArea) {
-          return <p>Cargando datos del área...</p>;
-        }
+		const url = `http://localhost:8080/api/daily-plan/${form.idPlan}`;
 
-        const normalize = (value) => {
-          return value === "" ? null : value;
-        };
+		const res = await fetch(url, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		});
 
+		if (!res.ok) {
+			alert("No se pudo guardar");
+			return;
+		}
 
-      const actualizarEstado = async (nuevoEstado) => {
-      const normalize = (value) => value === "" ? null : value;
+		// 🔹 Subir imágenes nuevas
+		await uploadImages();
 
-      const payload = {
-        ...form,
-        state: nuevoEstado,
-        resources: form.resources ?? [],
-        idDba: normalize(form.idDba),
-        idCompetencies: normalize(form.idCompetencies),
-        idLearning: normalize(form.idLearning),
-        idThematicAxes: normalize(form.idThematicAxes),
-        idEvaluationCriteria: normalize(form.idEvaluationCriteria),
-        idSiA: normalize(form.idSiA)
-      };
+		// 🔹 Recargar imágenes guardadas
+		await loadSavedImages(form.idPlan);
 
+		// 🔹 Reset de imágenes locales
+		setImagenes([]);
 
+		onSaved();
+		window.dispatchEvent(new Event("updateCalendar"));
+	};
 
+	// ✔ Subir imágenes al backend
+	const uploadImages = async () => {
+		if (!form.idPlan) return;
 
-        const url = form.idPlan
-          ? `http://localhost:8080/api/daily-plan/${form.idPlan}`
-          : `http://localhost:8080/api/daily-plan`;
+		for (const img of imagenes) {
+			const formData = new FormData();
+			formData.append("file", img);
 
-        const method = form.idPlan ? "PUT" : "POST";
+			try {
+				await fetch(
+					`http://localhost:8080/api/daily-plan/images/${form.idPlan}`,
+					{
+						method: "POST",
+						body: formData,
+					}
+				);
+			} catch (e) {
+				console.error("Error subiendo imagen:", e);
+			}
+		}
+	};
 
-        const res = await fetch(url, {
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+	// ⛔ Si no hay área
+	if (!area || !area.idArea) {
+		return <p>Cargando datos del área...</p>;
+	}
 
-        if (!res.ok) {
-          alert("No se pudo guardar");
-          return;
-        }
+	return (
+		<form className="card" style={{ padding: "1.4rem", marginTop: "2rem" }}>
+			<h3>{area.name}</h3>
+			<p style={{ fontSize: ".9rem", color: "#555" }}>Fecha: {fecha}</p>
 
-        onSaved();
-        window.dispatchEvent(new Event("updateCalendar"));
-      };
+			{/* --- SELECTS --- */}
+			<div>
+				<label>DBA</label>
+				<select name="idDba" value={form.idDba} onChange={onChange}>
+					<option value="">Seleccione un DBA</option>
+					{datos.dbas.map((d) => (
+						<option key={d.idDba} value={d.idDba}>
+							{d.description}
+						</option>
+					))}
+				</select>
+			</div>
 
-          // 🔹 Subir imágenes al backend
-    const uploadImages = async () => {
-      if (!form.idPlan) return;
+			<div>
+				<label>Competencias</label>
+				<select
+					name="idCompetencies"
+					value={form.idCompetencies}
+					onChange={onChange}
+				>
+					<option value="">Seleccione una competencia</option>
+					{datos.competencias.map((c) => (
+						<option key={c.idCompetencies} value={c.idCompetencies}>
+							{c.name}
+						</option>
+					))}
+				</select>
+			</div>
 
-      for (const img of imagenes) {
-        const formData = new FormData();
-        formData.append("file", img);
+			<div>
+				<label>Aprendizajes</label>
+				<select name="idLearning" value={form.idLearning} onChange={onChange}>
+					<option value="">Seleccione un aprendizaje</option>
+					{datos.learning.map((l) => (
+						<option key={l.idLearning} value={l.idLearning}>
+							{l.name}
+						</option>
+					))}
+				</select>
+			</div>
 
-        try {
-          await fetch(`http://localhost:8080/api/daily-plan/images/${form.idPlan}`, {
-            method: "POST",
-            body: formData
-          });
-        } catch (e) {
-          console.error("Error subiendo imagen:", e);
-        }
-      }
-    };
+			<div>
+				<label>Ejes Temáticos</label>
+				<select
+					name="idThematicAxes"
+					value={form.idThematicAxes}
+					onChange={onChange}
+				>
+					<option value="">Seleccione un eje</option>
+					{datos.ejes.map((e) => (
+						<option key={e.idThematicAxes} value={e.idThematicAxes}>
+							{e.name}
+						</option>
+					))}
+				</select>
+			</div>
 
+			<div>
+				<label>Actividades de profundización</label>
+				<select name="idSiA" value={form.idSiA} onChange={onChange}>
+					<option value="">Seleccione una actividad</option>
+					{datos.actividades.map((a) => (
+						<option key={a.idSiA} value={a.idSiA}>
+							{a.name}
+						</option>
+					))}
+				</select>
+			</div>
 
+			<div>
+				<label>Criterios de Evaluación</label>
+				<select
+					name="idEvaluationCriteria"
+					value={form.idEvaluationCriteria}
+					onChange={onChange}
+				>
+					<option value="">Seleccione un criterio</option>
+					{datos.criterios.map((cr) => (
+						<option
+							key={cr.idEvaluationCriteria}
+							value={cr.idEvaluationCriteria}
+						>
+							{cr.description}
+						</option>
+					))}
+				</select>
+			</div>
 
-  return (
-    <form className="card" style={{ padding: "1.4rem", marginTop: "2rem" }}>
+			{/* OBSERVACIONES */}
+			<div>
+				<label>Descripción de la actividad</label>
+				<textarea
+					name="observations"
+					value={form.observations}
+					onChange={onChange}
+					rows="3"
+					style={{ width: "100%" }}
+				></textarea>
+			</div>
 
-      <h3>{area.name}</h3>
-      <p style={{ fontSize: ".9rem", color: "#555" }}>Fecha: {fecha}</p>
+			{/* IMÁGENES */}
+			<div style={{ marginTop: "1rem" }}>
+				<label style={{ fontWeight: 600 }}>Imágenes (máximo 3)</label>
 
-      {/* DBA */}
-      <div>
-        <label>DBA</label>
-        <select name="idDba" value={form.idDba} onChange={onChange}>
-          <option value="">Seleccione un DBA</option>
-          {datos.dbas.map((d) => (
-            <option key={d.idDba} value={d.idDba}>{d.description}</option>
-          ))}
-        </select>
-      </div>
+				<input
+					type="file"
+					accept="image/png, image/jpeg, image/jpg"
+					multiple
+					onChange={(e) => {
+						const files = Array.from(e.target.files);
 
-      {/* COMPETENCIAS */}
-      <div>
-        <label>Competencias</label>
-        <select name="idCompetencies" value={form.idCompetencies} onChange={onChange}>
-          <option value="">Seleccione una competencia</option>
-          {datos.competencias.map((c) => (
-            <option key={c.idCompetencies} value={c.idCompetencies}>{c.name}</option>
-          ))}
-        </select>
-      </div>
+						if (imagenesGuardadas.length + imagenes.length + files.length > 3) {
+							alert("Máximo 3 imágenes en total.");
+							return;
+						}
 
-      {/* APRENDIZAJES */}
-      <div>
-        <label>Aprendizajes</label>
-        <select name="idLearning" value={form.idLearning} onChange={onChange}>
-          <option value="">Seleccione un aprendizaje</option>
-          {datos.learning.map((l) => (
-            <option key={l.idLearning} value={l.idLearning}>{l.name}</option>
-          ))}
-        </select>
-      </div>
+						const permitidos = ["image/png", "image/jpeg", "image/jpg"];
+						const validos = files.filter((f) => permitidos.includes(f.type));
 
-      {/* EJES TEMÁTICOS */}
-      <div>
-        <label>Ejes Temáticos</label>
-        <select name="idThematicAxes" value={form.idThematicAxes} onChange={onChange}>
-          <option value="">Seleccione un eje temático</option>
-          {datos.ejes.map((e) => (
-            <option key={e.idThematicAxes} value={e.idThematicAxes}>{e.name}</option>
-          ))}
-        </select>
-      </div>
+						if (validos.length !== files.length) {
+							alert("Solo se permiten imágenes PNG o JPG.");
+							return;
+						}
 
-      {/* ACTIVIDADES DE PROFUNDIZACIÓN */}
-      <div>
-        <label>Actividades de profundización</label>
-        <select name="idSiA" value={form.idSiA} onChange={onChange}>
-          <option value="">Seleccione una actividad</option>
-          {datos.actividades.map((a) => (
-            <option key={a.idSiA} value={a.idSiA}>{a.name}</option>
-          ))}
-        </select>
-      </div>
+						setImagenes((prev) => [...prev, ...validos]);
+					}}
+					style={{ marginTop: ".4rem" }}
+				/>
 
-      {/* CRITERIOS DE EVALUACIÓN */}
-      <div>
-        <label>Criterios de Evaluación</label>
-        <select name="idEvaluationCriteria" value={form.idEvaluationCriteria} onChange={onChange}>
-          <option value="">Seleccione un criterio</option>
-          {datos.criterios.map((cr) => (
-            <option key={cr.idEvaluationCriteria} value={cr.idEvaluationCriteria}>{cr.description}</option>
-          ))}
-        </select>
-      </div>
+				<p style={{ fontSize: ".8rem", color: "#555", marginTop: ".3rem" }}>
+					Total seleccionadas: {imagenes.length} / 3
+				</p>
 
-      {/* OBSERVACIONES */}
-      <div>
-        <label>Descripción de la actividad</label>
-        <textarea
-          name="observations"
-          value={form.observations}
-          onChange={onChange}
-          rows="3"
-          style={{ width: "100%" }}
-        ></textarea>
-      </div>
+				{/* IMÁGENES GUARDADAS */}
+				{imagenesGuardadas.length > 0 && (
+					<div style={{ marginTop: "1rem" }}>
+						<h4>Imágenes guardadas</h4>
 
-      
-      {/* RECURSOS */}
-     <div>
-  <label style={{ fontWeight: "600" }}>Recursos (puede seleccionar varios)</label>
+						<div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+							{imagenesGuardadas.map((img) => (
+								<div key={img.id} style={{ textAlign: "center" }}>
+									<img
+										src={`http://localhost:8080${img.url}`}
+										alt="prev"
+										style={{
+											width: 120,
+											height: 120,
+											objectFit: "cover",
+											borderRadius: 8,
+											border: "1px solid #ccc",
+										}}
+									/>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
 
-  <div
-    style={{
-      border: "1px solid #ccc",
-      borderRadius: "6px",
-      padding: "10px",
-      maxHeight: "150px",
-      overflowY: "auto",
-      background: "white",
-      marginTop: "4px"
-    }}
-  >
-    {datos.recursos.map((r) => {
-      const seleccionado = form.resources.includes(r.idResources);
+				{/* NUEVAS IMÁGENES */}
+				{imagenes.length > 0 && (
+					<div style={{ marginTop: "1rem" }}>
+						<h4>Nuevas imágenes (aún no guardadas)</h4>
 
-      return (
-        <label
-          key={r.idResources}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "4px 0",
-            cursor: "pointer"
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={seleccionado}
-            onChange={() => {
-              let nuevos;
+						<div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+							{imagenes.map((img, index) => (
+								<div key={index} style={{ textAlign: "center" }}>
+									<img
+										src={URL.createObjectURL(img)}
+										alt="preview"
+										style={{
+											width: 120,
+											height: 120,
+											objectFit: "cover",
+											borderRadius: 8,
+											border: "1px solid #ccc",
+										}}
+									/>
 
-              if (seleccionado) {
-                // quitar
-                nuevos = form.resources.filter(id => id !== r.idResources);
-              } else {
-                // agregar
-                nuevos = [...form.resources, r.idResources];
-              }
+									<button
+										type="button"
+										onClick={() =>
+											setImagenes((prev) => prev.filter((_, i) => i !== index))
+										}
+										style={{
+											marginTop: ".5rem",
+											background: "#ff4d4d",
+											color: "white",
+											border: "none",
+											padding: ".3rem .6rem",
+											borderRadius: 6,
+											cursor: "pointer",
+										}}
+									>
+										Eliminar
+									</button>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
+			</div>
 
-              setForm({ ...form, resources: nuevos });
-            }}
-          />
+			{/* BOTONES */}
+			<div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+				<button
+					type="button"
+					className="button-ghost"
+					onClick={() => actualizarEstado("INCOMPLETE")}
+				>
+					⏳ Guardar como pendiente
+				</button>
 
-          {r.name}
-        </label>
-      );
-    })}
-  </div>
-</div>
+				<button
+					type="button"
+					className="button-primary"
+					onClick={() => actualizarEstado("COMPLETE")}
+				>
+					✔ Guardar como completado
+				</button>
 
-
-    {/* IMÁGENES */}
-<div style={{ marginTop: "1rem" }}>
-  <label style={{ fontWeight: 600 }}>
-    Imágenes (máximo 3)
-  </label>
-
-  <input
-    type="file"
-    accept="image/png, image/jpeg, image/jpg"
-    multiple
-    onChange={(e) => {
-      const files = Array.from(e.target.files);
-
-      if (imagenes.length + files.length > 3) {
-        alert("Solo puedes subir máximo 3 imágenes.");
-        return;
-      }
-
-      const permitidos = ["image/png", "image/jpeg", "image/jpg"];
-      const validos = files.filter((f) => permitidos.includes(f.type));
-
-      if (validos.length !== files.length) {
-        alert("Solo se permiten imágenes PNG o JPG.");
-        return;
-      }
-
-      setImagenes((prev) => [...prev, ...validos]);
-    }}
-    style={{ marginTop: ".4rem" }}
-  />
-
-  {/* Contador */}
-  <p style={{ fontSize: ".8rem", color: "#555", marginTop: ".3rem" }}>
-    Total seleccionadas: {imagenes.length} / 3
-  </p>
-
-  {/* Lista de nombres */}
-  {imagenes.length > 0 && (
-    <ul style={{ marginTop: ".5rem", paddingLeft: "1.2rem" }}>
-      {imagenes.map((img, index) => (
-        <li key={index} style={{ marginBottom: ".3rem" }}>
-          {img.name}
-        </li>
-      ))}
-    </ul>
-  )}
-
-  {/* Vista previa */}
-  {imagenes.length > 0 && (
-    <div style={{
-      display: "flex",
-      gap: "1rem",
-      marginTop: "1rem",
-      flexWrap: "wrap"
-    }}>
-      {imagenes.map((img, index) => (
-        <div key={index} style={{ textAlign: "center" }}>
-          <img
-            src={URL.createObjectURL(img)}
-            alt="preview"
-            style={{
-              width: 120,
-              height: 120,
-              objectFit: "cover",
-              borderRadius: 8,
-              border: "1px solid #ccc"
-            }}
-          />
-
-          <button
-            type="button"
-            onClick={() =>
-              setImagenes((prev) => prev.filter((_, i) => i !== index))
-            }
-            style={{
-              marginTop: ".5rem",
-              background: "#ff4d4d",
-              color: "white",
-              border: "none",
-              padding: ".3rem .6rem",
-              borderRadius: 6,
-              cursor: "pointer",
-            }}
-          >
-            Eliminar
-          </button>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-         
-
-          <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-          <button
-            type="button"
-            className="button-ghost"
-            onClick={() => actualizarEstado("INCOMPLETE")}
-          >
-            ⏳ Guardar como pendiente
-          </button>
-
-          <button
-            type="button"
-            className="button-primary"
-            onClick={() => actualizarEstado("COMPLETE")}
-          >
-            ✔ Guardar como completado
-          </button>
-
-          <button
-            type="button"
-            className="button-ghost"
-            onClick={onCancel}
-          >
-            Cancelar
-          </button>
-        </div>
-      
-    </form>
-  );
+				<button type="button" className="button-ghost" onClick={onCancel}>
+					Cancelar
+				</button>
+			</div>
+		</form>
+	);
 }
